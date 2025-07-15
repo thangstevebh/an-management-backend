@@ -21,14 +21,14 @@ import { MongooseModule } from "@nestjs/mongoose";
     /*
      * MongoDB Module are imported here
      * */
-    MongooseModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
-        uri:
-          configService.get<string>("MONGODB_URI") ||
-          "mongodb://localhost:27017/an-management",
-      }),
-      inject: [ConfigService],
-    }),
+    // MongooseModule.forRootAsync({
+    //   useFactory: async (configService: ConfigService) => ({
+    //     uri:
+    //       configService.get<string>("MONGODB_URI") ||
+    //       "mongodb://localhost:27017/an-management",
+    //   }),
+    //   inject: [ConfigService],
+    // }),
 
     TerminusModule,
   ],
