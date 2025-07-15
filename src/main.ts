@@ -5,8 +5,6 @@ import { TimeoutInterceptor } from "./_core/interceptors/timeout.interceptor";
 import { ForbiddenException, ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { GLOBAL_MESSAGES } from "./_core/constants/common.constants";
-import * as cookieParser from "cookie-parser";
-import * as compression from "compression";
 import { json, urlencoded } from "express";
 import helmet from "helmet";
 
@@ -69,11 +67,9 @@ async function bootstrap() {
     methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH",
   });
 
-  app.use(cookieParser());
   app.use(json({ limit: "10mb" }));
   app.use(urlencoded({ limit: "10mb", extended: true }));
   app.use(helmet());
-  app.use(compression());
 
   await app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
