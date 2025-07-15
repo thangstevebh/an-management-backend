@@ -8,7 +8,6 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import * as cookieParser from "cookie-parser";
-import * as session from "express-session";
 import { json, urlencoded } from "express";
 import helmet from "helmet";
 import * as compression from "compression";
@@ -72,16 +71,6 @@ async function bootstrap(): Promise<void> {
   });
 
   app.use(cookieParser());
-  app.use(
-    session({
-      cookie: { maxAge: 7 * 60 * 60 * 1000 },
-      secret:
-        process.env.SESSION_SECRET ||
-        "QhkVvpxK4RfRe6GP74x6pfL85gvUp5NznDMKz7CN2YGWAHI4",
-      resave: false,
-      saveUninitialized: false,
-    }),
-  );
   app.use(json({ limit: "10mb" }));
   app.use(urlencoded({ limit: "10mb", extended: true }));
   app.use(helmet());
