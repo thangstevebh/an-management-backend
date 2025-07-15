@@ -31,24 +31,24 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   // Swagger
-  const config = new DocumentBuilder()
-    .setTitle("Nestjs Base API DOCUMENT")
-    .setDescription("The Nestjs Base API description")
-    .setVersion("2.0")
-    .addBearerAuth({
-      type: "http",
-      name: "Authorization",
-      in: "header",
-    })
-    .addGlobalParameters({
-      name: "client_id",
-      in: "header",
-      // required: true,
-    })
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+  // const config = new DocumentBuilder()
+  //   .setTitle("Nestjs Base API DOCUMENT")
+  //   .setDescription("The Nestjs Base API description")
+  //   .setVersion("2.0")
+  //   .addBearerAuth({
+  //     type: "http",
+  //     name: "Authorization",
+  //     in: "header",
+  //   })
+  //   .addGlobalParameters({
+  //     name: "client_id",
+  //     in: "header",
+  //     // required: true,
+  //   })
+  //   .build();
+  //
+  // const document = SwaggerModule.createDocument(app, config);
+  // SwaggerModule.setup("docs", app, document);
 
   const whitelist = Array.from(
     (process.env.WHITE_LIST || "").split(",").map((el) => el.trim()),
@@ -69,7 +69,7 @@ async function bootstrap() {
 
   app.use(json({ limit: "10mb" }));
   app.use(urlencoded({ limit: "10mb", extended: true }));
-  app.use(helmet());
+  // app.use(helmet());
 
   await app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
