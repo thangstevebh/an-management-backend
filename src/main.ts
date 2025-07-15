@@ -7,10 +7,10 @@ import {
   Logger,
   ValidationPipe,
 } from "@nestjs/common";
-import * as cookieParser from "cookie-parser";
+// import * as cookieParser from "cookie-parser";
 import { json, urlencoded } from "express";
 import helmet from "helmet";
-import * as compression from "compression";
+// import * as compression from "compression";
 import { TimeoutInterceptor } from "@/_core/interceptors/timeout.interceptor";
 import { GLOBAL_MESSAGES } from "@/_core/constants/common.constants";
 
@@ -70,11 +70,11 @@ async function bootstrap(): Promise<void> {
     methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH",
   });
 
-  app.use(cookieParser());
+  // app.use(cookieParser());
   app.use(json({ limit: "10mb" }));
   app.use(urlencoded({ limit: "10mb", extended: true }));
   app.use(helmet());
-  app.use(compression());
+  // app.use(compression());
 
   // Start Application
   await app.listen(process.env.PORT ?? 5621, () => {
