@@ -5,6 +5,9 @@ import { ForbiddenException, ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { TimeoutInterceptor } from "./_core/interceptors/timeout.interceptor";
 import { GLOBAL_MESSAGES } from "./_core/constants/common.constants";
+import { json, urlencoded } from "express";
+import helmet from "helmet";
+import * as compression from "compression";
 
 async function bootstrap() {
   const PORT = process.env.PORT ?? 3000;
@@ -58,6 +61,11 @@ async function bootstrap() {
       "Origin, X-CSRF-TOKEN, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, channel, request-id, Authorization, X-LANG",
     methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH",
   });
+
+  app.use(json({ limit: "10mb" }));
+  app.use(urlencoded({ limit: "10mb", extended: true }));
+  app.use(helmet());
+  app.use(compression());
 
   await app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);

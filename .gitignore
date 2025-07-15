@@ -14,6 +14,13 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Runtime data
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+
+
 # OS
 .DS_Store
 
