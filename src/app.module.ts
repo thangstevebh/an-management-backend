@@ -4,6 +4,8 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AppService } from "./app.service";
 import { AppController } from "./app.controller";
+import { UserModule } from "./modules/user/user.module";
+import { AuthModule } from "./modules/auth/auth.module";
 
 @Module({
   imports: [
@@ -22,6 +24,9 @@ import { AppController } from "./app.controller";
       }),
       inject: [ConfigService],
     }),
+
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
 

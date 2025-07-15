@@ -42,9 +42,7 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
-  const whitelist = Array.from(
-    (process.env.CORS_ORIGIN || "").split(",").map((el) => el.trim()),
-  );
+  const whitelist = Array.from((process.env.CORS_ORIGIN || "").split(",").map((el) => el.trim()));
   app.enableCors({
     origin: (origin: any, callback: any) => {
       if (whitelist.indexOf(origin) !== -1 || !origin) {
