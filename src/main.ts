@@ -7,13 +7,10 @@ import { TimeoutInterceptor } from "./_core/interceptors/timeout.interceptor";
 import { GLOBAL_MESSAGES } from "./_core/constants/common.constants";
 import { json, urlencoded } from "express";
 import helmet from "helmet";
-import * as compression from "compression";
 
 async function bootstrap() {
   const PORT = process.env.PORT ?? 3000;
   const app = await NestFactory.create(AppModule);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-
   app.setGlobalPrefix("api/");
 
   // Interceptor
@@ -65,7 +62,6 @@ async function bootstrap() {
   app.use(json({ limit: "10mb" }));
   app.use(urlencoded({ limit: "10mb", extended: true }));
   app.use(helmet());
-  app.use(compression());
 
   await app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
