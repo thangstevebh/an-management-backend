@@ -1,10 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
 import { UserRole } from "../user.constant";
-import {
-  SoftDeleteDocument,
-  softDeletePlugin,
-} from "src/_core/plugins/soft-delete-mongoose.plugin";
+import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
 
 export type UserDocument = HydratedDocument<User> & SoftDeleteDocument;
 export const USER_COLLECTION = "users";
