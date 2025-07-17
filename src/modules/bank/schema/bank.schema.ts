@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument, ObjectId } from "mongoose";
+import { HydratedDocument, ObjectId, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
 
 export type BankDocument = HydratedDocument<Bank> & SoftDeleteDocument;
-export const USER_COLLECTION = "banks";
+export const BANK_COLLECTION = "banks";
 
-@Schema({ timestamps: true, versionKey: false, collection: USER_COLLECTION })
+@Schema({ timestamps: true, versionKey: false, collection: BANK_COLLECTION })
 export class Bank {
-  _id: ObjectId;
+  _id: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: String,

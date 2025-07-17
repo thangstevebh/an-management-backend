@@ -1,8 +1,8 @@
-import { ObjectId } from "mongoose";
+import { ObjectId, Schema as MongooseSchema } from "mongoose";
 import { UserRole } from "./user.constant";
 
 export interface IUser {
-  _id: ObjectId;
+  _id: MongooseSchema.Types.ObjectId;
 
   username?: string;
   phoneNumber: string;

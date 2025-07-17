@@ -6,7 +6,12 @@ import { AppService } from "./app.service";
 import { AppController } from "./app.controller";
 import { UserModule } from "./modules/user/user.module";
 import { AuthModule } from "./modules/auth/auth.module";
-import { BankModule } from './modules/bank/bank.module';
+import { BankModule } from "./modules/bank/bank.module";
+import { AgentModule } from "./modules/agent/agent.module";
+import { PosTerminalModule } from "./modules/pos-terminal/pos-terminal.module";
+import { CardModule } from "./modules/card/card.module";
+import { DebtModule } from "./modules/debt/debt.module";
+import { CorrespondentModule } from "./modules/correspondent/correspondent.module";
 
 @Module({
   imports: [
@@ -29,6 +34,11 @@ import { BankModule } from './modules/bank/bank.module';
     UserModule,
     AuthModule,
     BankModule,
+    AgentModule,
+    PosTerminalModule,
+    CardModule,
+    DebtModule,
+    CorrespondentModule,
   ],
   controllers: [AppController],
 
