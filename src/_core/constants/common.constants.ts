@@ -1,16 +1,21 @@
+import { config } from "dotenv";
+config();
+
 export enum GLOBAL_MESSAGES {
-  ORIGIN_NOT_IN_WHITELIST = 'Origin not in whitelist',
-  UNAUTHORIZED = 'Unauthorized',
-  SOCKET_ORIGIN_NOT_IN_WHITELIST = 'Socket origin not in whitelist',
-  PERMISSION_FAILED = 'Permission failed',
+  ORIGIN_NOT_IN_WHITELIST = "Origin not in whitelist",
+  UNAUTHORIZED = "Unauthorized",
+  SOCKET_ORIGIN_NOT_IN_WHITELIST = "Socket origin not in whitelist",
+  PERMISSION_FAILED = "Permission failed",
 }
 
 export enum GLOBAL_LANGUAGE {
-  VI = 'vi',
-  EN = 'en',
+  VI = "vi",
+  EN = "en",
 }
 
 export enum ReturnStatus {
-  SUCCESS = 'success',
-  ERROR = 'error',
+  SUCCESS = "success",
+  ERROR = "error",
 }
+
+export const ADMIN_KEY = process.env.ADMIN_KEY || "adminkey123@";

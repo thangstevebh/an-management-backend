@@ -1,0 +1,227 @@
+[
+  {
+    "name": "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam",
+    "code": "Agribank",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TMCP Ngoại Thương Việt Nam",
+    "code": "Vietcombank",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TMCP Công Thương Việt Nam",
+    "code": "VietinBank",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam",
+    "code": "BIDV",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Đại Dương",
+    "code": "OceanBank",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Xây dựng",
+    "code": "CBBank",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Dầu khí toàn cầu",
+    "code": "GPBank",
+    "bankType": "Ngân hàng Thương mại Nhà nước"
+  },
+  {
+    "name": "Ngân hàng TMCP Á Châu",
+    "code": "ACB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP An Bình",
+    "code": "ABBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Bắc Á",
+    "code": "Bac A Bank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Bản Việt",
+    "code": "BVBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Bảo Việt",
+    "code": "BaoViet Bank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Bưu điện Liên Việt",
+    "code": "LienVietPostBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Đại Chúng Việt Nam",
+    "code": "PVcomBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Đông Á",
+    "code": "DongA Bank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Đông Nam Á",
+    "code": "SeABank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Hàng Hải Việt Nam",
+    "code": "MSB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Kiên Long",
+    "code": "Kienlongbank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Kỹ Thương Việt Nam",
+    "code": "Techcombank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Nam Á",
+    "code": "Nam A Bank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Phương Đông",
+    "code": "OCB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Quân Đội",
+    "code": "MBBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Quốc Dân",
+    "code": "NCB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Quốc Tế",
+    "code": "VIB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Sài Gòn",
+    "code": "SCB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Sài Gòn Công Thương",
+    "code": "SaigonBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Sài Gòn – Hà Nội",
+    "code": "SHB",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Sài Gòn Thương Tín",
+    "code": "Sacombank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Tiên Phong",
+    "code": "TPBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Việt Á",
+    "code": "VietABank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Việt Nam Thịnh Vượng",
+    "code": "VPBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Việt Nam Thương Tín",
+    "code": "Vietbank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Xăng dầu Petrolimex",
+    "code": "PG Bank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Xuất Nhập Khẩu Việt Nam",
+    "code": "Eximbank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TMCP Phát triển Thành phố Hồ Chí Minh",
+    "code": "HDBank",
+    "bankType": "Ngân hàng Thương mại Cổ phần"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV ANZ Việt Nam",
+    "code": "ANZVL",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV CIMB Việt Nam",
+    "code": "CIMB",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Citibank Việt Nam",
+    "code": "Citibank",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Hong Leong Việt Nam",
+    "code": "HLBVN",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV HSBC Việt Nam",
+    "code": "HSBC",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Public Bank Việt Nam",
+    "code": "PBVN",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Shinhan Việt Nam",
+    "code": "SHBVN",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Standard Chartered Việt Nam",
+    "code": "SCBVL",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV UOB Việt Nam",
+    "code": "UOB",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  },
+  {
+    "name": "Ngân hàng TNHH MTV Woori Việt Nam",
+    "code": "Woori",
+    "bankType": "Ngân hàng 100% Vốn Nước ngoài"
+  }
+]

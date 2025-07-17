@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, ObjectId } from "mongoose";
 import { UserRole } from "../user.constant";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
 
@@ -8,6 +8,8 @@ export const USER_COLLECTION = "users";
 
 @Schema({ timestamps: true, versionKey: false, collection: USER_COLLECTION })
 export class User {
+  _id: ObjectId;
+
   @Prop({
     type: String,
     required: true,

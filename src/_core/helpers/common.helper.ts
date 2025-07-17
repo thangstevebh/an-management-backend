@@ -1,5 +1,4 @@
-import { ICommonResponse } from '../interceptors/common.interface';
-import { IPageDetail } from '../interfaces/common.interface';
+import { ICommonResponse, IPageDetail } from "../interfaces/common.interface";
 
 export function CommonResponse(params: ICommonResponse): ICommonResponse {
   return {
@@ -11,13 +10,8 @@ export function CommonResponse(params: ICommonResponse): ICommonResponse {
   };
 }
 
-export function paginating(
-  totalCount: any,
-  page: number,
-  limit: number,
-): IPageDetail {
-  const totalDocs =
-    totalCount && totalCount.length ? totalCount[0].totalCount : 0;
+export function paginating(totalCount: any, page: number, limit: number): IPageDetail {
+  const totalDocs = totalCount && totalCount.length ? totalCount[0].totalCount : 0;
   const totalPage = Math.ceil(totalDocs / limit);
   const nextPage = page + 1 <= totalPage ? page + 1 : null;
   const prevPage = page - 1 > 0 ? page - 1 : null;
@@ -35,11 +29,7 @@ export function paginating(
   };
 }
 
-export function paginatingFind(
-  totalDocs: number,
-  page: number,
-  limit: number,
-): IPageDetail {
+export function paginatingFind(totalDocs: number, page: number, limit: number): IPageDetail {
   const totalPage = Math.ceil(totalDocs / limit);
   const nextPage = page + 2 <= totalPage ? page + 1 : null;
   const prevPage = page - 2 > 0 ? page - 1 : null;
