@@ -17,4 +17,20 @@ export class BankService {
 
     return true;
   }
+
+  async getListBanks(payload: { code?: string }): Promise<Bank[]> {
+    const filter: Record<string, any> = { isDeleted: false };
+
+    if (payload.code) {
+      filter.code = { $regex: payload.code, $options: "i" };
+    }
+
+    const banks = await this.bankModel.find({ ...filter }).exec();
+
+    if (!banks || banks.length === 0) {
+      return [];
+    }
+
+    return banks.map((bank) => bank.toObject());
+  }
 }
