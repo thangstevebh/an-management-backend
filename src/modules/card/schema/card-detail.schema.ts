@@ -27,6 +27,15 @@ export class CardDetail {
   detail: string;
 
   @Prop({
+    type: Number,
+    required: true,
+    min: 0,
+    max: 100,
+    default: 0,
+  })
+  feePercent: number;
+
+  @Prop({
     type: MongooseSchema.Types.Decimal128,
     required: true,
     min: 0,
@@ -64,6 +73,27 @@ export class CardDetail {
     default: null,
   })
   withdrawedDate?: Date;
+
+  @Prop({
+    type: Date,
+    required: false,
+    default: Date.now,
+  })
+  fromDate?: Date;
+
+  @Prop({
+    type: Date,
+    required: false,
+    default: null,
+  })
+  endDate?: Date;
+
+  @Prop({
+    type: Boolean,
+    required: false,
+    default: true,
+  })
+  isCurrent: boolean;
 }
 
 export const CardDetailSchema = SchemaFactory.createForClass(CardDetail);

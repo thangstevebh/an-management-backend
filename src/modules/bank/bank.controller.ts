@@ -6,6 +6,7 @@ import { ICommonResponse } from "@src/_core/interfaces/common.interface";
 import { BankService } from "./bank.service";
 import { FilterBanksDto } from "./dto/filter-banks.dto";
 import { startCase as _startCase } from "lodash";
+import { IsPublic } from "@src/_core/decorators/isPulic.decorator";
 
 @Controller("bank")
 export class BankController {
@@ -15,6 +16,7 @@ export class BankController {
     summary: "List Banks",
     description: "This endpoint retrieves a list of banks.",
   })
+  @IsPublic()
   @HttpCode(HttpStatus.OK)
   @Get("/list-banks")
   async getListBanks(@Query() payload: FilterBanksDto): Promise<ICommonResponse> {

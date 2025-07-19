@@ -14,7 +14,7 @@ export class CardCollaborator {
     type: String,
     required: true,
     trim: true,
-    lowercase: true,
+    uppercase: true,
     maxlength: 1000,
     minlength: 3,
   })

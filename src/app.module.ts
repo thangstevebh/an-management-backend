@@ -12,6 +12,13 @@ import { PosTerminalModule } from "./modules/pos-terminal/pos-terminal.module";
 import { CardModule } from "./modules/card/card.module";
 import { DebtModule } from "./modules/debt/debt.module";
 import { CorrespondentModule } from "./modules/correspondent/correspondent.module";
+import { APP_FILTER } from "@nestjs/core";
+import { CatchAllFilter } from "./_core/filters/catch-all.filter";
+import { RolesGuard } from "./modules/auth/guard/role.guard";
+import { AuthGuard } from "./modules/auth/guard/auth.guard";
+import { JwtService } from "@nestjs/jwt";
+import { AgentRequiredGuard } from "./modules/auth/guard/agent-required.guard";
+import { AgentRolesGuard } from "./modules/auth/guard/agent-role.guard";
 
 @Module({
   imports: [
@@ -42,6 +49,33 @@ import { CorrespondentModule } from "./modules/correspondent/correspondent.modul
   ],
   controllers: [AppController],
 
-  providers: [AppService],
+  providers: [
+    AppService,
+    JwtService,
+
+    // The Guard are provided here
+    {
+      provide: "APP_GUARD",
+      useClass: AuthGuard,
+    },
+    {
+      provide: "APP_GUARD",
+      useClass: RolesGuard,
+    },
+    {
+      provide: "APP_GUARD",
+      useClass: AgentRequiredGuard,
+    },
+    {
+      provide: "APP_GUARD",
+      useClass: AgentRolesGuard,
+    },
+
+    // The Interceptor are provided here
+    {
+      provide: APP_FILTER,
+      useClass: CatchAllFilter,
+    },
+  ],
 })
 export class AppModule {}

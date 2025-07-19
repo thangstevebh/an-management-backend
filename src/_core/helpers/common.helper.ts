@@ -29,12 +29,20 @@ export function paginating(totalCount: any, page: number, limit: number): IPageD
   };
 }
 
-export function paginatingFind(totalDocs: number, page: number, limit: number): IPageDetail {
-  const totalPage = Math.ceil(totalDocs / limit);
-  const nextPage = page + 2 <= totalPage ? page + 1 : null;
-  const prevPage = page - 2 > 0 ? page - 1 : null;
-  const hasNextPage = page < totalPage ? true : false;
-  const hasPrevPage = page > 2 ? true : false;
+export function paginatingByCount(totalDocs: number, page: number, limit: number): IPageDetail {
+  let totalPage = 1;
+  let nextPage = null;
+  let prevPage = null;
+  let hasNextPage = false;
+  let hasPrevPage = false;
+
+  if (page >= 1 && limit >= 1) {
+    totalPage = Math.ceil(totalDocs / limit);
+    nextPage = page + 1 <= totalPage ? page + 1 : null;
+    prevPage = page - 1 > 0 ? page - 1 : null;
+    hasNextPage = page < totalPage ? true : false;
+    hasPrevPage = page > 1 ? true : false;
+  }
 
   return {
     totalDocs,

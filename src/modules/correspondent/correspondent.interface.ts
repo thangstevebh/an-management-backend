@@ -1,1 +1,1 @@
-export interface Correspondent {}
+export interface ICorrespondent {}

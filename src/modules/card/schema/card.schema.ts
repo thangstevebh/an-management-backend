@@ -41,7 +41,7 @@ export class Card {
   lastNumber: string;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -50,7 +50,7 @@ export class Card {
   defaultFeePercent: number;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,

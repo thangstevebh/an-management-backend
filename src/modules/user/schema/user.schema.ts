@@ -46,11 +46,11 @@ export class User {
 
   @Prop({
     type: String,
-    required: true,
+    required: false,
     enum: Object.values(UserRole),
     default: UserRole.USER,
   })
-  role: UserRole;
+  role: UserRole = UserRole.USER;
 
   @Prop({ type: String, required: true, trim: true })
   password: string;

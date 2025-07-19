@@ -30,7 +30,7 @@ export class AgentUser {
     type: String,
     required: true,
     enum: Object.values(AgentRole),
-    default: AgentRole.AGENT,
+    default: AgentRole.MEMBER,
   })
   agentRole: AgentRole;
 

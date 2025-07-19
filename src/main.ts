@@ -18,7 +18,17 @@ async function bootstrap() {
 
   //Validate
   // app.useGlobalPipes(new I18nValidationPipe());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const messages = errors.map((error) => Object.values(error.constraints || {})).flat();
+        return new ForbiddenException(messages.join(", "));
+      },
+    }),
+  );
 
   if (process.env.NODE_ENV === "development") {
     // Swagger
@@ -32,7 +42,7 @@ async function bootstrap() {
         in: "header",
       })
       .addGlobalParameters({
-        name: "client_id",
+        name: "x-agent",
         in: "header",
         // required: true,
       })

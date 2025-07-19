@@ -1,1 +1,1 @@
-export interface PosTerminal {}
+export interface IPosTerminal {}

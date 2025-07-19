@@ -44,7 +44,7 @@ export class CorrespondentSumary {
   totalDate: number;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,

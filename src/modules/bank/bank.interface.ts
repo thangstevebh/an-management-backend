@@ -1,1 +1,1 @@
-export interface Bank {}
+export interface IBank {}

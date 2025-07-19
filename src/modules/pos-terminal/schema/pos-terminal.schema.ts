@@ -23,7 +23,7 @@ export class PosTerminal {
   name: string;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -32,7 +32,7 @@ export class PosTerminal {
   feePerDay: number;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -41,7 +41,7 @@ export class PosTerminal {
   feePerTerminal: number;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -49,14 +49,14 @@ export class PosTerminal {
   })
   feeBack: number;
 
-  @Prop({
-    type: MongooseSchema.Types.Decimal128,
-    required: true,
-    min: 0,
-    max: 100,
-    default: 0,
-  })
-  defaultFeePercent: number;
+  // @Prop({
+  //   type: MongooseSchema.Types.Decimal128,
+  //   required: true,
+  //   min: 0,
+  //   max: 100,
+  //   default: 0,
+  // })
+  // defaultFeePercent: number;
 
   @Prop({
     type: String,

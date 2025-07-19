@@ -1,1 +1,1 @@
-export interface Debt {}
+export interface IDebt {}

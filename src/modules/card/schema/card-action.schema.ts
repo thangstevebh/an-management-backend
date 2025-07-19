@@ -3,12 +3,13 @@ import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
 import { CARD_COLLECTION } from "./card.schema";
 import { POS_TERMINAL_SUMMARY_COLLECTION } from "@src/modules/pos-terminal/schema/pos-terminal-summary.schema";
+import { POS_TERMINAL_COLLECTION } from "@src/modules/pos-terminal/schema/pos-terminal.schema";
 
-export type CardActionDocument = HydratedDocument<CardAction> & SoftDeleteDocument;
-export const CARD_ACTION_COLLECTION = "card-actions";
+export type CardBillDocument = HydratedDocument<CardBill> & SoftDeleteDocument;
+export const CARD_BILL_COLLECTION = "card-bills";
 
-@Schema({ timestamps: true, versionKey: false, collection: CARD_ACTION_COLLECTION })
-export class CardAction {
+@Schema({ timestamps: true, versionKey: false, collection: CARD_BILL_COLLECTION })
+export class CardBill {
   _id: MongooseSchema.Types.ObjectId;
 
   @Prop({
@@ -24,6 +25,13 @@ export class CardAction {
     ref: POS_TERMINAL_SUMMARY_COLLECTION,
   })
   posTerminalSummaryId: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: true,
+    ref: POS_TERMINAL_COLLECTION,
+  })
+  posTerminalId: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: String,
@@ -63,7 +71,7 @@ export class CardAction {
   billNumber: string;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -80,7 +88,7 @@ export class CardAction {
   customerFeeAmount: number;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -97,7 +105,7 @@ export class CardAction {
   posFeeAmount: number;
 
   @Prop({
-    type: MongooseSchema.Types.Decimal128,
+    type: Number,
     required: true,
     min: 0,
     max: 100,
@@ -142,6 +150,6 @@ export class CardAction {
   isConfirmed: boolean;
 }
 
-export const CardActionSchema = SchemaFactory.createForClass(CardAction);
+export const CardBillSchema = SchemaFactory.createForClass(CardBill);
 
-CardActionSchema.plugin(softDeletePlugin);
+CardBillSchema.plugin(softDeletePlugin);

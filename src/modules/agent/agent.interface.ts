@@ -1,1 +1,1 @@
-export interface Agent {}
+export interface IAgent {}

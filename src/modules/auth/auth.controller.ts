@@ -17,6 +17,8 @@ import { JwtService } from "@nestjs/jwt";
 import { LoginDto } from "./dto/login.dto";
 import { IUserJWT } from "./auth.interface";
 import { ICommonResponse } from "@src/_core/interfaces/common.interface";
+import { IsPublic } from "@src/_core/decorators/isPulic.decorator";
+import { UserRole } from "../user/user.constant";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -31,6 +33,7 @@ export class AuthController {
     summary: "Register User",
     description: "This endpoint registers a new user.",
   })
+  @IsPublic()
   @HttpCode(HttpStatus.OK)
   @Post("/admin-register")
   async register(
@@ -59,6 +62,7 @@ export class AuthController {
       lastName,
       phoneNumber,
       password,
+      userRole: UserRole.ADMIN,
     });
     const jwtPayload: IUserJWT = {
       _id: newUser._id,
@@ -84,6 +88,7 @@ export class AuthController {
     summary: "Login User",
     description: "This endpoint logs in a user and returns a JWT token.",
   })
+  @IsPublic()
   @HttpCode(HttpStatus.OK)
   @Post("/login")
   async login(@Body() payload: LoginDto): Promise<ICommonResponse> {
