@@ -19,6 +19,7 @@ import { AuthGuard } from "./modules/auth/guard/auth.guard";
 import { JwtService } from "@nestjs/jwt";
 import { AgentRequiredGuard } from "./modules/auth/guard/agent-required.guard";
 import { AgentRolesGuard } from "./modules/auth/guard/agent-role.guard";
+import { AdminModule } from "./modules/admin/admin.module";
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AgentRolesGuard } from "./modules/auth/guard/agent-role.guard";
       inject: [ConfigService],
     }),
 
+    AdminModule,
     UserModule,
     AuthModule,
     BankModule,

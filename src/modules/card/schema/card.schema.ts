@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
 import { AGENT_COLLECTION } from "@src/modules/agent/schema/agent.schema";
+import { CARD_COLLABORATOR_COLLECTION } from "./card-collaborator.schema";
 
 export type CardDocument = HydratedDocument<Card> & SoftDeleteDocument;
 export const CARD_COLLECTION = "cards";
@@ -81,6 +82,14 @@ export class Card {
     ref: AGENT_COLLECTION,
   })
   agentId: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: false,
+    ref: CARD_COLLABORATOR_COLLECTION,
+    default: null,
+  })
+  cardCollaboratorId: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: Boolean,

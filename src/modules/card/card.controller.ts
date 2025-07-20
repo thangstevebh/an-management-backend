@@ -1,4 +1,12 @@
-import { Controller, Get, HttpCode, HttpStatus, Query } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Query,
+} from "@nestjs/common";
 import { CardService } from "./card.service";
 import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 import { Roles } from "@src/_core/decorators/role.decorator";
@@ -60,9 +68,41 @@ export class CardController {
     return CommonResponse({
       code: HttpStatus.OK,
       status: ReturnStatus.SUCCESS,
-      message: "List of POS terminals retrieved successfully",
+      message: "List of cards retrieved successfully",
       data: {
         ...result,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Get Card By ID",
+    description: "This endpoint retrieves a specific card by its ID for a specific agent.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @Get("/get-card-by-id")
+  async getCardById(
+    @GetAgent() agent: Agent,
+    @Query("cardId") cardId: string,
+  ): Promise<ICommonResponse> {
+    const card = await this.cardService.getCardById({
+      cardId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!card) {
+      throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Card retrieved successfully",
+      data: {
+        card,
       },
     });
   }

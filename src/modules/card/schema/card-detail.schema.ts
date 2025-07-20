@@ -19,7 +19,7 @@ export class CardDetail {
 
   @Prop({
     type: String,
-    required: true,
+    required: false,
     trim: true,
     minlength: 1,
     default: null,
@@ -41,15 +41,15 @@ export class CardDetail {
     min: 0,
     default: 0,
   })
-  incommingAmount: number;
+  amount: number;
 
-  @Prop({
-    type: MongooseSchema.Types.Decimal128,
-    required: true,
-    min: 0,
-    default: 0,
-  })
-  notWithdrawAmount: number;
+  // @Prop({
+  //   type: MongooseSchema.Types.Decimal128,
+  //   required: true,
+  //   min: 0,
+  //   default: 0,
+  // })
+  // notWithdrawAmount: number;
 
   @Prop({
     type: MongooseSchema.Types.Decimal128,

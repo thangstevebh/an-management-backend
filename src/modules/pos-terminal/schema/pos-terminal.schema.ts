@@ -3,7 +3,7 @@ import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
 import { USER_COLLECTION } from "@src/modules/user/schema/user.schema";
 import { AGENT_COLLECTION } from "@src/modules/agent/schema/agent.schema";
-import { PosTerminalStatus } from "../pos-terminal.constant";
+import { PosTerminalStatus, PosTerminalType } from "../pos-terminal.constant";
 
 export type PosTerminalDocument = HydratedDocument<PosTerminal> & SoftDeleteDocument;
 export const POS_TERMINAL_COLLECTION = "pos-terminals";
@@ -49,14 +49,23 @@ export class PosTerminal {
   })
   feeBack: number;
 
-  // @Prop({
-  //   type: MongooseSchema.Types.Decimal128,
-  //   required: true,
-  //   min: 0,
-  //   max: 100,
-  //   default: 0,
-  // })
-  // defaultFeePercent: number;
+  @Prop({
+    type: Number,
+    required: false,
+    min: 0,
+    max: 100,
+    default: 0,
+  })
+  feePercentNormal?: number;
+
+  @Prop({
+    type: Number,
+    required: false,
+    min: 0,
+    max: 100,
+    default: 0,
+  })
+  feePercentMB: number;
 
   @Prop({
     type: String,
@@ -67,11 +76,20 @@ export class PosTerminal {
   status: PosTerminalStatus;
 
   @Prop({
-    type: MongooseSchema.Types.ObjectId,
+    type: String,
     required: true,
-    ref: AGENT_COLLECTION,
+    enum: Object.values(PosTerminalType),
+    default: PosTerminalType.WIFI,
   })
-  agentId: MongooseSchema.Types.ObjectId;
+  posType: PosTerminalType;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: false,
+    ref: AGENT_COLLECTION,
+    default: null,
+  })
+  agentId?: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -79,6 +97,35 @@ export class PosTerminal {
     ref: USER_COLLECTION,
   })
   createdBy: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: Date,
+    required: false,
+    default: null,
+  })
+  sendAt?: Date;
+
+  @Prop({
+    type: Date,
+    required: false,
+    default: null,
+  })
+  receivedAt?: Date;
+
+  @Prop({
+    type: Date,
+    required: false,
+    default: null,
+  })
+  sendBackAt?: Date;
+
+  @Prop({
+    type: String,
+    required: false,
+    default: null,
+    trim: true,
+  })
+  note?: string;
 }
 
 export const PosTerminalSchema = SchemaFactory.createForClass(PosTerminal);

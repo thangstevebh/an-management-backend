@@ -11,3 +11,9 @@ export enum PosTerminalStatus {
   SUSPENDED = "suspended",
   TERMINATED = "terminated",
 }
+
+export enum PosTerminalType {
+  WIFI = "wifi",
+  SIM = "sim",
+  OTHER = "other",
+}

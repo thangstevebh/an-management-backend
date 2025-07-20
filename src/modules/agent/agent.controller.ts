@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
 } from "@nestjs/common";
@@ -34,6 +35,8 @@ import { ListPOSFilterDto } from "./dto/list-pos.dto";
 import { CardService } from "../card/card.service";
 import { AddCollaboratorCardDto } from "./dto/add-collaborator-card.dto";
 import { AddCardDto } from "./dto/add-card.dto";
+import { AddIncommingAmountCommandDto } from "./dto/add-incomming-amount-command.dto";
+import { AddWithdrawAmountRequestDto } from "./dto/add-withdraw-amount-request.dto";
 
 @Controller("agent")
 export class AgentController {
@@ -53,7 +56,7 @@ export class AgentController {
   @Roles(UserRole.ADMIN, UserRole.USER)
   @Post("/create-agent-by-admin")
   async createAgentByAdmin(@Body() payload: CreateAgentByAdminDto): Promise<ICommonResponse> {
-    const { username, firstName, lastName, phoneNumber, agentName } = payload;
+    const { username, firstName, lastName, phoneNumber, agentName, isMain } = payload;
 
     const existingUser = await this.userService.getUser({
       username,
@@ -77,6 +80,7 @@ export class AgentController {
       lastName,
       phoneNumber,
       agentRole: AgentRole.OWNER,
+      isMain,
     });
 
     return CommonResponse({
@@ -174,48 +178,6 @@ export class AgentController {
       message: "Agent member added successfully",
       data: {
         ...members,
-      },
-    });
-  }
-
-  @ApiOperation({
-    summary: "Add Agent POS Terminal",
-    description: "This endpoint allows an agent to add a POS terminal.",
-  })
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @Roles(UserRole.ADMIN, UserRole.USER)
-  @IsAgentRequired()
-  @AgentRoles(AgentRole.OWNER, AgentRole.MANAGER)
-  @Post("/add-pos-terminal")
-  async addPosTerminal(
-    @GetUser() user: User,
-    @GetAgent() agent: Agent,
-    @Body() payload: AddPosTerminalDto,
-  ): Promise<ICommonResponse> {
-    const { name } = payload;
-
-    const exitingPosTerminal = await this.posTerminalService.getPosTerminal({
-      name,
-      agentId: agent._id.toString(),
-    });
-
-    if (exitingPosTerminal) {
-      throw new BadRequestException("POS terminal already exists for this agent");
-    }
-
-    const newPosTerminal = await this.posTerminalService.createPosTerminal({
-      agentId: agent._id.toString(),
-      createdBy: user._id.toString(),
-      ...payload,
-    });
-
-    return CommonResponse({
-      code: HttpStatus.OK,
-      status: ReturnStatus.SUCCESS,
-      message: "Agent POS terminal added successfully",
-      data: {
-        posTerminal: newPosTerminal,
       },
     });
   }
@@ -326,6 +288,108 @@ export class AgentController {
       message: "Card added successfully",
       data: {
         card: newCard,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Add Incoming Amount Command",
+    description: "This endpoint allows an agent to add an incoming amount command for a card.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @AgentRoles(AgentRole.OWNER, AgentRole.MANAGER)
+  @Post("/add-incoming-command/:cardId")
+  async addIncommingCommand(
+    @GetUser() user: User,
+    @GetAgent() agent: Agent,
+    @Param("cardId") cardId: string,
+    @Body() payload: AddIncommingAmountCommandDto,
+  ): Promise<ICommonResponse> {
+    const { incommingAmount, note } = payload;
+    if (incommingAmount <= 0) {
+      throw new BadRequestException("Incoming amount must be greater than zero");
+    }
+
+    const currentCard = await this.cardService.getCardById({
+      cardId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!currentCard) {
+      throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+
+    const incomingAmountCommand = await this.cardService.addIncomingCommand({
+      cardId,
+      incommingAmount,
+      note,
+      createdBy: user._id.toString(),
+      cardDetailId: currentCard.currentDetail._id.toString(),
+      agentId: agent._id.toString(),
+    });
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Incoming amount command added successfully",
+      data: {
+        incomingAmountCommand,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Add Request Withdraw Command",
+    description: "This endpoint allows an agent to add a request withdraw command for a card.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @AgentRoles(AgentRole.OWNER, AgentRole.MANAGER)
+  @Post("/add-withdraw-command/:cardId")
+  async addRequestWithdrawCommand(
+    @GetUser() user: User,
+    @GetAgent() agent: Agent,
+    @Param("cardId") cardId: string,
+    @Body() payload: AddWithdrawAmountRequestDto,
+  ): Promise<ICommonResponse> {
+    const { withdrawRequestedAmount, note } = payload;
+    if (withdrawRequestedAmount <= 0) {
+      throw new BadRequestException("Withdraw requested amount must be greater than zero");
+    }
+
+    const currentCard = await this.cardService.getCardById({
+      cardId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!currentCard) {
+      throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+
+    if (currentCard.currentDetail.amount < withdrawRequestedAmount) {
+      throw new BadRequestException("Insufficient balance for withdrawal");
+    }
+
+    const withdrawCommand = await this.cardService.addWithdrawCommand({
+      cardId,
+      withdrawRequestedAmount,
+      note,
+      createdBy: user._id.toString(),
+      cardDetailId: currentCard.currentDetail._id.toString(),
+      agentId: agent._id.toString(),
+    });
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Request withdraw command added successfully",
+      data: {
+        withdrawCommand,
       },
     });
   }

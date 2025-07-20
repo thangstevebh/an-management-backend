@@ -1,11 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { PosTerminalType } from "@src/modules/pos-terminal/pos-terminal.constant";
 import { Transform, TransformFnParams, Type } from "class-transformer";
 import {
-  IsEnum,
-  IsMongoId,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Max,
@@ -14,19 +13,58 @@ import {
   MinLength,
 } from "class-validator";
 
-export class AddPosTerminalDto {
+export class AddCardDetailDto {
   @ApiProperty({
-    example: "EXIM KIM THU 04",
+    example: "detail for card123",
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  @MinLength(2)
+  @IsOptional()
+  @MinLength(1)
   @Transform(({ value }: TransformFnParams): string =>
-    typeof value == "string" ? value.trim().toUpperCase() : value,
+    typeof value == "string" ? value.trim() : value,
   )
-  name: string;
+  detail?: string;
+
+  @ApiProperty({
+    example: 10000000,
+    required: true,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Type(() => Number)
+  amount: number;
+
+  @ApiProperty({
+    example: 0,
+    required: true,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Type(() => Number)
+  notWithdrawAmount: number;
+
+  @ApiProperty({
+    example: 0,
+    required: true,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Type(() => Number)
+  withdrawedAmount: number;
+
+  @ApiProperty({
+    example: 0,
+    required: true,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Type(() => Number)
+  negativeAmount: number;
 
   @ApiProperty({
     example: 0.96,
@@ -37,46 +75,5 @@ export class AddPosTerminalDto {
   @Min(0)
   @Max(100)
   @Type(() => Number)
-  feePerDay: number;
-
-  @ApiProperty({
-    example: 1.17,
-    required: true,
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(0)
-  @Max(100)
-  @Type(() => Number)
-  feePerTerminal: number;
-
-  @ApiProperty({
-    example: 0.11,
-    required: true,
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(0)
-  @Max(100)
-  @Type(() => Number)
-  feeBack: number;
-
-  @ApiProperty({
-    example: PosTerminalType.WIFI,
-    required: true,
-    enum: PosTerminalType,
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsEnum(PosTerminalType)
-  posType: PosTerminalType;
-
-  @ApiProperty({
-    example: "6879df3e28f31b389b36d81e",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @IsMongoId()
-  agentId?: string | null = null;
+  feePercent: number;
 }

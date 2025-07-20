@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
+import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { Agent } from "./schema/agent.schema";
-import { Model, ObjectId, PipelineStage, Types } from "mongoose";
+import { Connection, Model, ObjectId, PipelineStage, Types } from "mongoose";
 import { ListAgentsFilterDto } from "./dto/list-agent.dto";
 import { QueryOrder } from "@src/_core/constants/common.constants";
 import { AGENT_USER_COLLECTION, AgentUser } from "./schema/user-agent.schema";
@@ -10,6 +10,7 @@ import { UserService } from "../user/user.service";
 import { AgentRole } from "./agent.constant";
 import { ListAgentMembersFilterDto } from "./dto/list-agent-members.dto";
 import { paginatingByCount } from "@src/_core/helpers/common.helper";
+import { runInTransaction } from "@src/_core/helpers/transaction-session-mongoose.helper";
 
 @Injectable()
 export class AgentService {
@@ -24,6 +25,9 @@ export class AgentService {
     private readonly userModel: Model<User>,
 
     private readonly userService: UserService,
+
+    @InjectConnection()
+    private readonly connection: Connection,
   ) {}
 
   async getAgent(payload: Record<string, any>, userId?: string): Promise<Agent | null> {
@@ -62,26 +66,33 @@ export class AgentService {
     return agent.toObject();
   }
 
-  async createAgent(payload: Record<string, any>): Promise<Agent> {
-    const agent = new this.agentModel(payload);
-    agent.save();
+  async createAgent(payload: Record<string, any>): Promise<Agent | null> {
+    await runInTransaction(this.connection, async (session) => {
+      const agent = new this.agentModel({
+        name: payload.name,
+        isMain: payload.isMain || false,
+      });
+      agent.save();
 
-    const user = await this.userService.createUser({
-      username: payload.username,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-      phoneNumber: payload.phoneNumber,
-      password: "123456",
+      const user = await this.userService.createUser({
+        username: payload.username,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        phoneNumber: payload.phoneNumber,
+        password: "123456",
+      });
+
+      const agentUser = new this.agentUserModel({
+        agentId: agent._id,
+        userId: user._id,
+        agentRole: payload.agentRole || AgentRole.MEMBER,
+      });
+      await agentUser.save();
     });
 
-    const agentUser = new this.agentUserModel({
-      agentId: agent._id,
-      userId: user._id,
-      agentRole: payload.agentRole || AgentRole.MEMBER,
-    });
-    await agentUser.save();
+    const agent = await this.agentModel.findOne({ name: payload.name });
 
-    return agent.toObject();
+    return agent ? agent.toObject() : null;
   }
 
   async getAgentUser(payload: { agentId: string; userId: string }): Promise<AgentUser | null> {
@@ -107,28 +118,41 @@ export class AgentService {
     lastName?: string;
     phoneNumber: string;
     agentRole?: AgentRole;
-  }): Promise<Omit<User, "password">> {
+  }): Promise<Omit<User, "password"> | null> {
     const { agentId, username, firstName, lastName, phoneNumber, agentRole } = payload;
 
-    const user = await this.userService.createUser({
+    await runInTransaction(this.connection, async (session) => {
+      const user = await this.userService.createUser({
+        username,
+        firstName,
+        lastName,
+        phoneNumber,
+        password: "123456",
+      });
+
+      const agentUser = new this.agentUserModel({
+        agentId: new Types.ObjectId(agentId),
+        userId: user._id,
+        agentRole: agentRole,
+      });
+
+      await agentUser.save();
+    });
+
+    const user = await this.userModel.findOne({
       username,
       firstName,
       lastName,
       phoneNumber,
-      password: "123456",
+      isDeleted: false,
     });
 
-    const agentUser = new this.agentUserModel({
-      agentId: new Types.ObjectId(agentId),
-      userId: user._id,
-      agentRole: payload.agentRole,
-    });
+    if (user) {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
 
-    await agentUser.save();
-
-    const { password, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
+    return null;
   }
 
   async getListAgents(

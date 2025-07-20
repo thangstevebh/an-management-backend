@@ -15,7 +15,7 @@ export class PosTerminalService {
     private readonly posTerminalModel: Model<PosTerminal>,
   ) {}
 
-  async getPosTerminal(payload: { name: string; agentId: string }): Promise<PosTerminal | null> {
+  async getPosTerminal(payload: { name: string; agentId?: string }): Promise<PosTerminal | null> {
     const { name, agentId } = payload;
 
     const query: Record<string, any> = { isDeleted: false };
@@ -32,11 +32,10 @@ export class PosTerminalService {
 
   async createPosTerminal(
     payload: AddPosTerminalDto & {
-      createdBy?: string;
-      agentId: string;
+      createdBy?: string | null;
     },
   ): Promise<PosTerminal> {
-    const { name, createdBy, agentId, feePerDay, feeBack, feePerTerminal } = payload;
+    const { name, createdBy, agentId, feePerDay, feeBack, feePerTerminal, posType } = payload;
 
     const newPosTerminal = new this.posTerminalModel({
       name,
@@ -45,6 +44,7 @@ export class PosTerminalService {
       feeBack,
       feePerTerminal,
       createdBy,
+      posType,
     });
 
     await newPosTerminal.save();
