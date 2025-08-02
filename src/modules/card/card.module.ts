@@ -5,7 +5,6 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Card, CardSchema } from "./schema/card.schema";
 import { CardCollaborator, CardCollaboratorSchema } from "./schema/card-collaborator.schema";
 import { CardDetail, CardDetailSchema } from "./schema/card-detail.schema";
-import { CardBill, CardBillSchema } from "./schema/card-action.schema";
 import {
   CardIncomingCommand,
   CardIncomingCommandSchema,
@@ -15,6 +14,7 @@ import {
   CardWithdrawCommand,
   CardWithdrawCommandSchema,
 } from "./schema/card-withdraw-request.schema";
+import { CardBill, CardBillSchema } from "./schema/card-bill.schema";
 
 @Module({
   imports: [

@@ -1,9 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
-import { CARD_COLLECTION } from "./card.schema";
-import { POS_TERMINAL_SUMMARY_COLLECTION } from "@src/modules/pos-terminal/schema/pos-terminal-summary.schema";
-import { POS_TERMINAL_COLLECTION } from "@src/modules/pos-terminal/schema/pos-terminal.schema";
+import { Card } from "./card.schema";
+import { Agent } from "@src/modules/agent/schema/agent.schema";
+import { CardSummary } from "./card-summary.schema";
+import { PosTerminalSummary } from "@src/modules/pos-terminal/schema/pos-terminal-summary.schema";
+import { PosTerminal } from "@src/modules/pos-terminal/schema/pos-terminal.schema";
+import { User } from "@src/modules/user/schema/user.schema";
 
 export type CardBillDocument = HydratedDocument<CardBill> & SoftDeleteDocument;
 export const CARD_BILL_COLLECTION = "card-bills";
@@ -15,21 +18,37 @@ export class CardBill {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: CARD_COLLECTION,
+    ref: Card.name,
   })
   cardId: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: POS_TERMINAL_SUMMARY_COLLECTION,
+    ref: Agent.name,
   })
-  posTerminalSummaryId: MongooseSchema.Types.ObjectId;
+  agentId: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: false,
+    ref: CardSummary.name,
+    default: null,
+  })
+  cardSummaryId?: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: false,
+    ref: PosTerminalSummary.name,
+    default: null,
+  })
+  posTerminalSummaryId?: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: POS_TERMINAL_COLLECTION,
+    ref: PosTerminal.name,
   })
   posTerminalId: MongooseSchema.Types.ObjectId;
 
@@ -71,6 +90,14 @@ export class CardBill {
   billNumber: string;
 
   @Prop({
+    type: String,
+    required: false,
+    trim: true,
+    default: null,
+  })
+  note?: string;
+
+  @Prop({
     type: Number,
     required: true,
     min: 0,
@@ -103,6 +130,23 @@ export class CardBill {
     default: 0,
   })
   posFeeAmount: number;
+
+  @Prop({
+    type: Number,
+    required: true,
+    min: 0,
+    max: 100,
+    default: 0,
+  })
+  backFee: number;
+
+  @Prop({
+    type: MongooseSchema.Types.Decimal128,
+    required: true,
+    min: 0,
+    default: 0,
+  })
+  backFeeAmount: number;
 
   @Prop({
     type: Number,
@@ -148,6 +192,21 @@ export class CardBill {
     default: false,
   })
   isConfirmed: boolean;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: true,
+    ref: User.name,
+  })
+  createdBy: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: false,
+    ref: User.name,
+    default: null,
+  })
+  confirmedBy?: MongooseSchema.Types.ObjectId;
 }
 
 export const CardBillSchema = SchemaFactory.createForClass(CardBill);

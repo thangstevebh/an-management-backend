@@ -11,6 +11,9 @@ export class UserService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+
+    @InjectModel(AgentUser.name)
+    private readonly agentUserModel: Model<AgentUser>,
   ) {}
 
   async createUser(payload: {
@@ -133,13 +136,47 @@ export class UserService {
     return user;
   }
 
-  async findUserByPhonenumber(phoneNumber: string): Promise<User | null> {
+  async findUserByPhonenumber(phoneNumber: string): Promise<
+    | (User & {
+        agentUser?: AgentUser | null;
+      })
+    | null
+  > {
     const user = await this.userModel.findOne({ phoneNumber, isDeleted: false }).exec();
 
     if (!user) {
       return null;
     }
+    const existedUser = user.toObject() as User & { agentUser?: AgentUser | null };
 
-    return user;
+    if (user.role !== UserRole.ADMIN) {
+      const agentUser = await this.agentUserModel
+        .findOne({ userId: user._id, isDeleted: false, isActive: true })
+        .exec();
+
+      const userObject = user.toObject();
+      return {
+        ...userObject,
+        agentUser: agentUser ? agentUser.toObject() : null,
+      };
+    }
+
+    return existedUser;
+  }
+
+  async updateUserPassword(userId: string, newPasswordHash: string): Promise<User> {
+    const updatedUser = await this.userModel
+      .findOneAndUpdate(
+        { _id: userId, isDeleted: false },
+        { password: newPasswordHash, isChangedPassword: true },
+        { new: true },
+      )
+      .exec();
+
+    if (!updatedUser) {
+      throw new Error("User not found or already deleted");
+    }
+
+    return updatedUser.toObject();
   }
 }

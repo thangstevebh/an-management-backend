@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { Connection, Model, PipelineStage, Types } from "mongoose";
 import { Card } from "./schema/card.schema";
-import { CardCollaborator } from "./schema/card-collaborator.schema";
+import { CARD_COLLABORATOR_COLLECTION, CardCollaborator } from "./schema/card-collaborator.schema";
 import { ListCollaboratorFilterDto } from "./dto/list-collaborator.dto";
 import { QueryOrder } from "@src/_core/constants/common.constants";
 import { ListCardsFilterDto } from "./dto/list-cards.dto";
@@ -14,6 +14,9 @@ import { CardIncomingCommand } from "./schema/card-incomming-command.schema";
 import { InCommingCommandStatus, WithdrawCommandStatus } from "./card.constant";
 import Decimal from "decimal.js";
 import { runInTransaction } from "@src/_core/helpers/transaction-session-mongoose.helper";
+import { CardBill } from "./schema/card-bill.schema";
+import { UpdateCardDto } from "./dto/update-card.dto";
+import { UpdateCardDetailDto } from "./dto/update-card-detail.dto";
 
 @Injectable()
 export class CardService {
@@ -32,6 +35,9 @@ export class CardService {
 
     @InjectModel(CardWithdrawCommand.name)
     private readonly cardWithdrawCommandModel: Model<CardWithdrawCommand>,
+
+    @InjectModel(CardBill.name)
+    private readonly cardBillModel: Model<CardBill>,
 
     @InjectConnection() private readonly connection: Connection,
   ) {}
@@ -63,19 +69,28 @@ export class CardService {
   async listCollaborators(
     payload: ListCollaboratorFilterDto,
     agentId: string,
-  ): Promise<CardCollaborator[]> {
-    const { search } = payload;
+  ): Promise<{ collaborators: CardCollaborator[] | []; pagemeta: Record<string, any> }> {
+    const { search, name } = payload;
 
     const query: Record<string, any> = {
       isDeleted: false,
       agentId,
     };
 
+    if (payload._id) {
+      query._id = new Types.ObjectId(payload._id);
+    }
+
+    if (name) {
+      query.name = name;
+    }
+
     if (search) {
       query.$or = [{ name: { $regex: new RegExp(search, "i") } }];
     }
 
     let mongooseQuery = this.cardCollaboratorModel.find(query);
+    const totalCountDetail = await this.cardCollaboratorModel.countDocuments(query).exec();
 
     if (payload.order) {
       mongooseQuery = mongooseQuery.sort({ createdAt: payload.order === QueryOrder.DESC ? -1 : 1 });
@@ -88,7 +103,16 @@ export class CardService {
 
     const collaborators = await mongooseQuery.exec();
 
-    return collaborators.map((collaborator) => collaborator.toObject());
+    let pagemeta: Record<string, any> = paginatingByCount(
+      totalCountDetail || 0,
+      payload.page ? payload.page : 0,
+      payload.limit ? payload.limit : 0,
+    );
+
+    return {
+      collaborators: collaborators.map((collaborator) => collaborator.toObject()),
+      pagemeta,
+    };
   }
 
   async getCard(payload: {
@@ -131,7 +155,7 @@ export class CardService {
     defaultFeePercent: number;
     feeBack: number;
     maturityDate?: Date;
-    collaboratorId?: string;
+    cardCollaboratorId?: string;
   }): Promise<Card | null> {
     const {
       agentId,
@@ -139,7 +163,7 @@ export class CardService {
       name,
       bankCode,
       lastNumber,
-      collaboratorId,
+      cardCollaboratorId,
       feeBack,
       defaultFeePercent,
       maturityDate,
@@ -155,7 +179,7 @@ export class CardService {
         defaultFeePercent: defaultFeePercent || 0,
         feeBack: feeBack || 0,
         maturityDate: maturityDate || null,
-        collaboratorId,
+        cardCollaboratorId,
       });
 
       /*
@@ -168,7 +192,7 @@ export class CardService {
         amount: 0,
         notWithdrawAmount: 0,
         withdrawedAmount: 0,
-        negativeAmount: 0,
+        negativeRemainingAmount: 0,
       });
     });
 
@@ -184,14 +208,17 @@ export class CardService {
 
   async getListCards(
     payload: ListCardsFilterDto,
-    agentId: string,
+    agentId?: string | null,
   ): Promise<{ cards: Card[] } & { pagemeta: Record<string, any> }> {
     const { search, isActive } = payload;
 
     const query: Record<string, any> = {
       isDeleted: false,
-      agentId,
     };
+
+    if (agentId) {
+      query.agentId = new Types.ObjectId(agentId);
+    }
 
     if (search) {
       query.$or = [
@@ -205,10 +232,10 @@ export class CardService {
       query.isActive = isActive;
     }
 
-    let mongooseQuery = this.cardModel.find(query);
+    let mongooseQuery = this.cardModel.find(query).populate("cardCollaboratorId");
 
     if (payload.order) {
-      mongooseQuery = mongooseQuery.sort({ createdAt: payload.order === QueryOrder.DESC ? -1 : 1 });
+      mongooseQuery = mongooseQuery.sort({ name: payload.order === QueryOrder.DESC ? -1 : 1 });
     }
 
     if (payload.page && payload.limit) {
@@ -234,7 +261,7 @@ export class CardService {
 
   async getCardById(payload: { cardId: string; agentId: string }): Promise<
     | (Card & {
-        currentDetail: CardDetail;
+        currentDetail?: CardDetail | null;
       })
     | null
   > {
@@ -275,11 +302,37 @@ export class CardService {
         },
       },
       {
+        $lookup: {
+          from: CARD_COLLABORATOR_COLLECTION,
+          localField: "cardCollaboratorId",
+          foreignField: "_id",
+          as: "collaborator",
+          pipeline: [
+            {
+              $match: {
+                isDeleted: false,
+              },
+            },
+          ],
+        },
+      },
+      {
         $addFields: {
           currentDetail: {
             $cond: {
               if: { $gt: [{ $size: "$currentDetail" }, 0] },
               then: { $arrayElemAt: ["$currentDetail", 0] },
+              else: null,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          collaborator: {
+            $cond: {
+              if: { $gt: [{ $size: "$collaborator" }, 0] },
+              then: { $arrayElemAt: ["$collaborator", 0] },
               else: null,
             },
           },
@@ -500,10 +553,10 @@ export class CardService {
         if (cardDetail) {
           cardDetail.amount = Number(cardDetail.amount) + Number(incommingAmount);
 
-          cardDetail.negativeRemainingAmount =
-            Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount) < 0
-              ? Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount)
-              : 0;
+          // cardDetail.negativeRemainingAmount =
+          //   Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount) < 0
+          //     ? Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount)
+          //     : 0;
 
           await cardDetail.save();
         }
@@ -566,10 +619,10 @@ export class CardService {
           cardDetail.withdrawedAmount =
             Number(cardDetail.withdrawedAmount) + Number(withdrawRequestedAmount);
 
-          cardDetail.negativeRemainingAmount =
-            Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount) < 0
-              ? Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount)
-              : 0;
+          // cardDetail.negativeRemainingAmount =
+          //   Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount) < 0
+          //     ? Number(cardDetail.amount) - Number(cardDetail.withdrawedAmount)
+          //     : 0;
 
           cardDetail.withdrawedDate = new Date();
 
@@ -586,5 +639,170 @@ export class CardService {
     });
 
     return updatedCommand ? updatedCommand.toObject() : null;
+  }
+
+  async addBillByCard(payload: {
+    posTerminalId: string;
+    posTerminalName: string;
+    agentId: string;
+    createdBy: string;
+    amount: number;
+    billNumber: string;
+    customerFee: number;
+    posFee: number;
+    backFee: number;
+    cardId: string;
+    lot?: string;
+    note?: string;
+  }): Promise<CardBill | null> {
+    const {
+      posTerminalId,
+      posTerminalName,
+      amount,
+      lot,
+      billNumber,
+      note,
+      customerFee,
+      cardId,
+      backFee,
+      posFee,
+      agentId,
+      createdBy,
+    } = payload;
+    console.log("Adding bill by card", payload);
+
+    const differenceFee = customerFee - posFee;
+
+    const customerFeeAmount = (amount * customerFee) / 100;
+    const posFeeAmount = (amount * posFee) / 100;
+    const backFeeAmount = (amount * backFee) / 100;
+    const differenceFeeAmount = (amount * differenceFee) / 100;
+
+    const newBill = await this.cardBillModel.create({
+      posTerminalId: new Types.ObjectId(posTerminalId),
+      posTerminalName,
+      agentId: new Types.ObjectId(agentId),
+      createdBy: new Types.ObjectId(createdBy),
+
+      lot: lot ? lot.trim() : null,
+      billNumber: billNumber.trim(),
+
+      amount: new Decimal(amount || 0),
+
+      customerFee: customerFee || 0,
+      customerFeeAmount: new Decimal(customerFeeAmount) || 0,
+
+      posFee: posFee || 0,
+      posFeeAmount: new Decimal(posFeeAmount) || 0,
+
+      backFee: backFee || 0,
+      backFeeAmount: new Decimal(backFeeAmount) || 0,
+
+      differenceFee: differenceFee || 0,
+      differenceFeeAmount: new Decimal(differenceFeeAmount) || 0,
+
+      cardId: new Types.ObjectId(cardId),
+      note: note ? note.trim() : null,
+    });
+
+    return newBill ? newBill.toObject() : null;
+  }
+  async updateNegativeCurrentCardDetail(payload: {
+    cardId: string;
+    agentId: string;
+    negativeAmount: number;
+    note?: string;
+  }): Promise<CardDetail | null> {
+    const { cardId, negativeAmount } = payload;
+
+    const cardDetail = await this.cardDetailModel.findOne({
+      cardId: new Types.ObjectId(cardId),
+      isCurrent: true,
+      isDeleted: false,
+    });
+
+    if (!cardDetail) {
+      return null;
+    }
+
+    cardDetail.negativeRemainingAmount = Number(negativeAmount || 0);
+
+    await cardDetail.save();
+
+    return cardDetail.toObject();
+  }
+
+  async updateCard(cardId: string, payload: UpdateCardDto) {
+    const query: Record<string, any> = {
+      isDeleted: false,
+      _id: new Types.ObjectId(cardId),
+    };
+    const updateData: Record<string, any> = {};
+    if (payload.name) updateData.name = payload.name.trim();
+    if (payload.bankCode) updateData.bankCode = payload.bankCode.trim();
+    if (payload.lastNumber) updateData.lastNumber = payload.lastNumber.trim();
+    if (payload.defaultFeePercent) {
+      updateData.defaultFeePercent = new Decimal(payload.defaultFeePercent);
+    }
+    if (payload.feeBack) {
+      updateData.feeBack = new Decimal(payload.feeBack);
+    }
+    if (payload.maturityDate) {
+      updateData.maturityDate = payload.maturityDate;
+    }
+    if (payload.note) {
+      updateData.note = payload.note.trim();
+    }
+    if (payload.agentId) {
+      updateData.agentId = new Types.ObjectId(payload.agentId);
+    }
+    if (payload.cardCollaboratorId) {
+      updateData.cardCollaboratorId = new Types.ObjectId(payload.cardCollaboratorId);
+    }
+    const updatedCard = await this.cardModel
+      .findOneAndUpdate(query, { ...updateData }, { new: true })
+      .exec();
+    if (!updatedCard) {
+      throw new Error("Card not found or does not belong to this agent");
+    }
+
+    return updatedCard.toObject();
+  }
+
+  async updateCardDetail(cardId: string, cardDetailId: string, payload: UpdateCardDetailDto) {
+    const query: Record<string, any> = {
+      isDeleted: false,
+      _id: new Types.ObjectId(cardDetailId),
+      cardId: new Types.ObjectId(cardId),
+      isCurrent: true,
+    };
+
+    const updateData: Record<string, any> = {};
+    if (payload.feePercent) {
+      updateData.feePercent = new Decimal(payload.feePercent);
+    }
+    if (payload.amount) {
+      updateData.amount = new Decimal(payload.amount);
+    }
+    if (payload.notWithdrawAmount) {
+      updateData.notWithdrawAmount = new Decimal(payload.notWithdrawAmount);
+    }
+    if (payload.withdrawedAmount) {
+      updateData.withdrawedAmount = new Decimal(payload.withdrawedAmount);
+    }
+    if (payload.negativeRemainingAmount) {
+      updateData.negativeRemainingAmount = new Decimal(payload.negativeRemainingAmount);
+    }
+    if (payload.detail) {
+      updateData.detail = payload.detail.trim();
+    }
+    const updatedCardDetail = await this.cardDetailModel
+      .findOneAndUpdate(query, { $set: { ...updateData } }, { new: true })
+      .exec();
+    if (!updatedCardDetail) {
+      throw new Error("Card detail not found or does not belong to this card");
+    }
+
+    return updatedCardDetail.toObject();
   }
 }

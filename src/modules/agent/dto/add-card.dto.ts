@@ -93,5 +93,5 @@ export class AddCardDto {
   @IsOptional()
   @IsString()
   @IsMongoId()
-  collaboratorId?: string;
+  cardCollaboratorId?: string;
 }

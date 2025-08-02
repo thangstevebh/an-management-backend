@@ -64,12 +64,14 @@ export class AuthController {
       password,
       userRole: UserRole.ADMIN,
     });
+
     const jwtPayload: IUserJWT = {
       _id: newUser._id,
       username: newUser.username,
       role: newUser.role,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
+      isChangedPassword: true,
     };
 
     // Generate JWT token for the new user
@@ -96,13 +98,13 @@ export class AuthController {
     const user = await this.userService.findUserByPhonenumber(phoneNumber);
 
     if (!user) {
-      throw new BadRequestException("User not found");
+      throw new BadRequestException("Người dùng không tồn tại");
     }
 
     const isPasswordValid = await this.authService.comparePassword(password, user.password);
 
     if (!isPasswordValid) {
-      throw new BadRequestException("Invalid password");
+      throw new BadRequestException("Mật khẩu không đúng");
     }
 
     const jwtPayload: IUserJWT = {
@@ -111,6 +113,9 @@ export class AuthController {
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
+      agentId: user.agentUser ? user.agentUser.agentId : null,
+      agentRole: user.agentUser ? user.agentUser.agentRole : null,
+      isChangedPassword: user.isChangedPassword,
     };
 
     // Generate JWT token for the new user

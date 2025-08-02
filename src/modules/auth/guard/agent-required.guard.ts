@@ -39,6 +39,11 @@ export class AgentRequiredGuard implements CanActivate {
       user.role === UserRole.ADMIN ? null : user._id,
     );
 
+    if (user.role === UserRole.ADMIN) {
+      request["agent"] = agent;
+      return true;
+    }
+
     if (!agent) {
       throw new PermissionDeniedException("Agent not found");
     }

@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { PageOptionsDto } from "@src/_core/constants/common.constants";
 import { Transform, TransformFnParams } from "class-transformer";
-import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsEnum, IsMongoId, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class ListCollaboratorFilterDto extends PageOptionsDto {
   @ApiProperty({
@@ -15,4 +15,21 @@ export class ListCollaboratorFilterDto extends PageOptionsDto {
     typeof value == "string" ? value.trim() : value,
   )
   search?: string;
+
+  @ApiProperty({
+    example: "1234567890abcdef123456",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @IsMongoId()
+  _id?: string;
+
+  @ApiProperty({
+    example: "name",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
 }

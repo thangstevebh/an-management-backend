@@ -44,6 +44,7 @@ export class CreateAgentByAdminDto {
   @IsString()
   @IsOptional()
   @MaxLength(50)
+  @MinLength(1)
   @Transform(({ value }: TransformFnParams): string =>
     typeof value == "string" ? value.trim() : value,
   )
@@ -56,10 +57,12 @@ export class CreateAgentByAdminDto {
   @IsString()
   @IsOptional()
   @MaxLength(50)
+  @MinLength(1)
   @Transform(({ value }: TransformFnParams): string =>
     typeof value == "string" ? value.trim() : value,
   )
   lastName?: string;
+
   @ApiProperty({
     example: "1234567890",
     required: true,

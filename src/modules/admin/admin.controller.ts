@@ -2,30 +2,29 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
   Query,
+  Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
-import { IsAgentRequired } from "@src/_core/decorators/is-agent-required.decorator";
 import { Roles } from "@src/_core/decorators/role.decorator";
 import { UserRole } from "../user/user.constant";
 import { GetUser } from "@src/_core/decorators/user.decorator";
 import { User } from "../user/schema/user.schema";
-import { GetAgent } from "@src/_core/decorators/get-agent.decorator";
 import { AddPosTerminalDto } from "../agent/dto/add-pos-terminal.dto";
 import { ICommonResponse } from "@src/_core/interfaces/common.interface";
-import { Agent } from "../agent/schema/agent.schema";
 import { CommonResponse } from "@src/_core/helpers/common.helper";
 import { ReturnStatus } from "@src/_core/constants/common.constants";
 import { PosTerminalService } from "../pos-terminal/pos-terminal.service";
-import { AddCardDetailDto } from "../card/dto/add-card-detail.dto";
 import { CardService } from "../card/card.service";
 import { ConfirmIncommingCommandDto } from "./dto/confirm-incomming-command.dto";
 import { InCommingCommandStatus, WithdrawCommandStatus } from "../card/card.constant";
 import { ConfirmWithdrawCommandDto } from "./dto/confirm-withdraw-command.dto";
+import { ListPOSFilterDto } from "../agent/dto/list-pos.dto";
 
 @Controller("admin")
 export class AdminController {
@@ -73,50 +72,6 @@ export class AdminController {
   }
 
   @ApiOperation({
-    summary: "Add Card Detail",
-    description: "This endpoint allows an agent to add card details.",
-  })
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @Roles(UserRole.ADMIN)
-  @IsAgentRequired()
-  @Post("/add-card-detail")
-  async addCardDetail(
-    @GetAgent() agent: Agent,
-    @Query("cardId") cardId: string,
-    @Body() payload: AddCardDetailDto,
-  ): Promise<ICommonResponse> {
-    /*
-     * add card detail base on amount if - will be withdraw and + will be deposit compare with current amount
-     *
-     * */
-
-    const checkValidCard = await this.cardService.checkCardByAgent({
-      cardId,
-      agentId: agent._id.toString(),
-    });
-
-    if (!checkValidCard) {
-      throw new BadRequestException("Card not found or does not belong to this agent");
-    }
-
-    const updateDetailCard = await this.cardService.addCardDetail({
-      cardId,
-      agentId: agent._id.toString(),
-      ...payload,
-    });
-
-    return CommonResponse({
-      code: HttpStatus.OK,
-      status: ReturnStatus.SUCCESS,
-      message: "Card detail added successfully",
-      data: {
-        cardDetail: updateDetailCard,
-      },
-    });
-  }
-
-  @ApiOperation({
     summary: "Confirm Incomming Command",
     description: "This endpoint allows an agent to confirm an incoming command for Card.",
   })
@@ -153,6 +108,10 @@ export class AdminController {
 
     if (!checkValidCard) {
       throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+
+    if (!checkValidCard.currentDetail) {
+      throw new BadRequestException("Card does not have current detail");
     }
 
     if (checkValidCard.currentDetail.endDate !== null) {
@@ -218,6 +177,10 @@ export class AdminController {
       throw new BadRequestException("Card not found or does not belong to this agent");
     }
 
+    if (!checkValidCard.currentDetail) {
+      throw new BadRequestException("Card does not have current detail");
+    }
+
     if (checkValidCard.currentDetail.endDate !== null) {
       throw new BadRequestException("Card is already expired, cannot confirm command");
     }
@@ -238,6 +201,30 @@ export class AdminController {
       message: "Withdraw command confirmed successfully",
       data: {
         command: updateCommand,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "List POS Terminals",
+    description: "This endpoint retrieves a list of POS terminals for an agent.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN)
+  @Get("/list-pos-by-admin")
+  async listPOSByAdmin(
+    @Req() req: Request,
+    @Query() payload: ListPOSFilterDto,
+  ): Promise<ICommonResponse> {
+    const posTerminals = await this.posTerminalService.getListPosTerminals(payload);
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "List of POS terminals retrieved successfully",
+      data: {
+        ...posTerminals,
       },
     });
   }

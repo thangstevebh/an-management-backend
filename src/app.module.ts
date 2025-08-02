@@ -39,9 +39,9 @@ import { AdminModule } from "./modules/admin/admin.module";
       inject: [ConfigService],
     }),
 
+    AuthModule,
     AdminModule,
     UserModule,
-    AuthModule,
     BankModule,
     AgentModule,
     PosTerminalModule,

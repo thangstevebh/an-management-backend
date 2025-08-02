@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
-import { USER_COLLECTION } from "@src/modules/user/schema/user.schema";
-import { AGENT_COLLECTION } from "@src/modules/agent/schema/agent.schema";
-import { POS_TERMINAL_COLLECTION } from "./pos-terminal.schema";
+import { User } from "@src/modules/user/schema/user.schema";
 import { PosTerminalSummaryStatus } from "../pos-terminal.constant";
+import { PosTerminal } from "./pos-terminal.schema";
+import { Agent } from "@src/modules/agent/schema/agent.schema";
 
 export type PosTerminalSummaryDocument = HydratedDocument<PosTerminalSummary> & SoftDeleteDocument;
 export const POS_TERMINAL_SUMMARY_COLLECTION = "pos-terminal-summaries";
@@ -16,14 +16,14 @@ export class PosTerminalSummary {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: POS_TERMINAL_COLLECTION,
+    ref: PosTerminal.name,
   })
   posTerminalId: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: AGENT_COLLECTION,
+    ref: Agent.name,
   })
   agentId: MongooseSchema.Types.ObjectId;
 
@@ -172,7 +172,7 @@ export class PosTerminalSummary {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: USER_COLLECTION,
+    ref: User.name,
   })
   createdBy: MongooseSchema.Types.ObjectId;
 }

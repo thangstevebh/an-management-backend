@@ -37,7 +37,10 @@ export class AgentService {
 
     if (payload._id) {
       query._id = payload._id;
+    } else {
+      return null;
     }
+
     if (payload.name) {
       query.name = payload.name;
     }

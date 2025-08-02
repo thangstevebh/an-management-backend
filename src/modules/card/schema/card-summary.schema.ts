@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
-import { CARD_COLLECTION } from "./card.schema";
-import { USER_COLLECTION } from "@src/modules/user/schema/user.schema";
+import { Card } from "./card.schema";
+import { User } from "@src/modules/user/schema/user.schema";
 import { CardSummaryStatus } from "../card.constant";
 
 export type CardSummaryDocument = HydratedDocument<CardSummary> & SoftDeleteDocument;
@@ -15,7 +15,7 @@ export class CardSummary {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: CARD_COLLECTION,
+    ref: Card.name,
   })
   cardId: MongooseSchema.Types.ObjectId;
 
@@ -93,7 +93,7 @@ export class CardSummary {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: false,
-    ref: USER_COLLECTION,
+    ref: User.name,
     default: null,
   })
   confirmedBy?: MongooseSchema.Types.ObjectId;
@@ -101,7 +101,7 @@ export class CardSummary {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: USER_COLLECTION,
+    ref: User.name,
   })
   createdBy: MongooseSchema.Types.ObjectId;
 }

@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
-import { USER_COLLECTION } from "@src/modules/user/schema/user.schema";
-import { AGENT_COLLECTION } from "@src/modules/agent/schema/agent.schema";
 import { PosTerminalStatus, PosTerminalType } from "../pos-terminal.constant";
+import { Agent } from "@src/modules/agent/schema/agent.schema";
+import { User } from "@src/modules/user/schema/user.schema";
 
 export type PosTerminalDocument = HydratedDocument<PosTerminal> & SoftDeleteDocument;
 export const POS_TERMINAL_COLLECTION = "pos-terminals";
@@ -86,7 +86,7 @@ export class PosTerminal {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: false,
-    ref: AGENT_COLLECTION,
+    ref: Agent.name,
     default: null,
   })
   agentId?: MongooseSchema.Types.ObjectId;
@@ -94,7 +94,7 @@ export class PosTerminal {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: USER_COLLECTION,
+    ref: User.name,
   })
   createdBy: MongooseSchema.Types.ObjectId;
 

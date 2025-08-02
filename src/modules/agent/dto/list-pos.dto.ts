@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { PageOptionsDto } from "@src/_core/constants/common.constants";
 import { Transform, TransformFnParams } from "class-transformer";
-import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsEnum, IsMongoId, IsOptional, IsString, MaxLength } from "class-validator";
 import { PosTerminalStatus } from "@src/modules/pos-terminal/pos-terminal.constant";
 
 export class ListPOSFilterDto extends PageOptionsDto {
@@ -18,6 +18,15 @@ export class ListPOSFilterDto extends PageOptionsDto {
   search?: string;
 
   @ApiProperty({
+    example: "1234567890abcdef123456",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @IsMongoId()
+  _id?: string;
+
+  @ApiProperty({
     example: PosTerminalStatus.ACTIVE,
     enum: PosTerminalStatus,
     required: false,
@@ -25,4 +34,13 @@ export class ListPOSFilterDto extends PageOptionsDto {
   @IsOptional()
   @IsEnum(PosTerminalStatus)
   status?: PosTerminalStatus | null = null;
+
+  @ApiProperty({
+    example: "1234567890abcdef123456",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @IsMongoId()
+  agentId?: string;
 }

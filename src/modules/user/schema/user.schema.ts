@@ -21,10 +21,10 @@ export class User {
   })
   username: string;
 
-  @Prop({ type: String, required: false, default: null, trim: true, maxlength: 50, minlength: 3 })
+  @Prop({ type: String, required: false, default: null, trim: true, maxlength: 50, minlength: 1 })
   firstName: string;
 
-  @Prop({ type: String, required: false, default: null, trim: true, maxlength: 50, minlength: 3 })
+  @Prop({ type: String, required: false, default: null, trim: true, maxlength: 50, minlength: 1 })
   lastName: string;
 
   @Prop({
@@ -55,7 +55,7 @@ export class User {
   @Prop({ type: String, required: true, trim: true })
   password: string;
 
-  @Prop({ type: String, required: false, default: false })
+  @Prop({ type: Boolean, required: false, default: false })
   isChangedPassword: boolean;
 
   // @Prop({ type: Date, default: null })

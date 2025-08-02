@@ -28,7 +28,6 @@ import { GetAgent } from "@src/_core/decorators/get-agent.decorator";
 import { Agent } from "./schema/agent.schema";
 import { AddAgentMemberDto } from "./dto/add-member-agent.dto";
 import { ListAgentMembersFilterDto } from "./dto/list-agent-members.dto";
-import { AddPosTerminalDto } from "./dto/add-pos-terminal.dto";
 import { PosTerminalService } from "../pos-terminal/pos-terminal.service";
 import { User } from "../user/schema/user.schema";
 import { ListPOSFilterDto } from "./dto/list-pos.dto";
@@ -37,6 +36,9 @@ import { AddCollaboratorCardDto } from "./dto/add-collaborator-card.dto";
 import { AddCardDto } from "./dto/add-card.dto";
 import { AddIncommingAmountCommandDto } from "./dto/add-incomming-amount-command.dto";
 import { AddWithdrawAmountRequestDto } from "./dto/add-withdraw-amount-request.dto";
+import { AddBillByCardDto } from "./dto/add-bill-by-card.dto";
+import { UpdateNegativeCurrentCardDetailDto } from "./dto/update-negative-current-card-detail.dto";
+import { AddCardDetailDto } from "../card/dto/add-card-detail.dto";
 
 @Controller("agent")
 export class AgentController {
@@ -188,7 +190,7 @@ export class AgentController {
   })
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.USER)
   @IsAgentRequired()
   @Get("/list-pos")
   async listPOS(
@@ -199,6 +201,7 @@ export class AgentController {
       payload,
       agent._id.toString(),
     );
+
     return CommonResponse({
       code: HttpStatus.OK,
       status: ReturnStatus.SUCCESS,
@@ -232,7 +235,14 @@ export class AgentController {
     });
 
     if (existingCollaborator) {
-      throw new BadRequestException("Collaborator card already exists for this agent");
+      return CommonResponse({
+        code: HttpStatus.OK,
+        status: ReturnStatus.SUCCESS,
+        message: "Collaborator card added successfully",
+        data: {
+          collaborator: existingCollaborator,
+        },
+      });
     }
 
     const newCollaborator = await this.cardService.createCollaborator({
@@ -321,6 +331,9 @@ export class AgentController {
     if (!currentCard) {
       throw new BadRequestException("Card not found or does not belong to this agent");
     }
+    if (!currentCard.currentDetail) {
+      throw new BadRequestException("Card is not active or has no current detail");
+    }
 
     const incomingAmountCommand = await this.cardService.addIncomingCommand({
       cardId,
@@ -370,6 +383,9 @@ export class AgentController {
     if (!currentCard) {
       throw new BadRequestException("Card not found or does not belong to this agent");
     }
+    if (!currentCard.currentDetail) {
+      throw new BadRequestException("Card is not active or has no current detail");
+    }
 
     if (currentCard.currentDetail.amount < withdrawRequestedAmount) {
       throw new BadRequestException("Insufficient balance for withdrawal");
@@ -390,6 +406,170 @@ export class AgentController {
       message: "Request withdraw command added successfully",
       data: {
         withdrawCommand,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Add Bill for Card",
+    description: "This endpoint allows an agent to add a bill for a card.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @AgentRoles(AgentRole.OWNER, AgentRole.MANAGER)
+  @Post("/add-bill/:cardId")
+  async addCardBill(
+    @GetUser() user: User,
+    @GetAgent() agent: Agent,
+    @Param("cardId") cardId: string,
+    @Body() payload: AddBillByCardDto,
+  ): Promise<ICommonResponse> {
+    const { amount, lot, billNumber, customerFee, posFee, backFee, note, posTerminalId } = payload;
+
+    const currentCard = await this.cardService.getCardById({
+      cardId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!currentCard) {
+      throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+    if (!currentCard.currentDetail) {
+      throw new BadRequestException("Card is not active or has no current detail");
+    }
+
+    if (currentCard.currentDetail && currentCard.currentDetail.amount < amount) {
+      throw new BadRequestException("Insufficient balance for bill");
+    }
+
+    const posTerminal = await this.posTerminalService.getPosTerminalById({
+      posTerminalId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!posTerminal) {
+      throw new BadRequestException("POS Terminal not found or does not belong to this agent");
+    }
+
+    const newBill = await this.cardService.addBillByCard({
+      amount,
+      lot,
+      billNumber,
+      customerFee,
+      posFee,
+      backFee,
+      note,
+      posTerminalId: posTerminal._id.toString(),
+      posTerminalName: posTerminal.name,
+      cardId,
+      agentId: agent._id.toString(),
+      createdBy: user._id.toString(),
+    });
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Bill added successfully",
+      data: {
+        bill: newBill,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Add Card Detail",
+    description: "This endpoint allows an agent to add card details.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @AgentRoles(AgentRole.OWNER, AgentRole.MANAGER)
+  @Post("/add-card-detail")
+  async addCardDetail(
+    @GetAgent() agent: Agent,
+    @Query("cardId") cardId: string,
+    @Body() payload: AddCardDetailDto,
+  ): Promise<ICommonResponse> {
+    /*
+     * add card detail base on amount if - will be withdraw and + will be deposit compare with current amount
+     *
+     * */
+
+    const checkValidCard = await this.cardService.checkCardByAgent({
+      cardId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!checkValidCard) {
+      throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+
+    const updateDetailCard = await this.cardService.addCardDetail({
+      cardId,
+      agentId: agent._id.toString(),
+      ...payload,
+    });
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Card detail added successfully",
+      data: {
+        cardDetail: updateDetailCard,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Update Negative Current Card Detail",
+    description: "This endpoint allows an agent to update a negative current card detail.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @AgentRoles(AgentRole.OWNER, AgentRole.MANAGER)
+  @Post("/update-nagative-current-card-detail/:cardId")
+  async updateNegativeCurrentCardDetail(
+    @GetUser() user: User,
+    @GetAgent() agent: Agent,
+    @Param("cardId") cardId: string,
+    @Body() payload: UpdateNegativeCurrentCardDetailDto,
+  ): Promise<ICommonResponse> {
+    const { negativeAmount, note } = payload;
+
+    const currentCard = await this.cardService.getCardById({
+      cardId,
+      agentId: agent._id.toString(),
+    });
+
+    if (!currentCard) {
+      throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+    if (!currentCard.currentDetail) {
+      throw new BadRequestException("Card is not active or has no current detail");
+    }
+
+    const updatedCardDetail = await this.cardService.updateNegativeCurrentCardDetail({
+      cardId,
+      negativeAmount,
+      note,
+      agentId: agent._id.toString(),
+    });
+
+    if (!updatedCardDetail) {
+      throw new BadRequestException("Failed to update negative current card detail");
+    }
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Negative current card detail updated successfully",
+      data: {
+        updatedCardDetail,
       },
     });
   }

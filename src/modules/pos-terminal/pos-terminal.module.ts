@@ -4,6 +4,7 @@ import { PosTerminalService } from "./pos-terminal.service";
 import { PosTerminal, PosTerminalSchema } from "./schema/pos-terminal.schema";
 import { MongooseModule } from "@nestjs/mongoose";
 import { PosTerminalSummary, PosTerminalSummarySchema } from "./schema/pos-terminal-summary.schema";
+import { UserModule } from "../user/user.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PosTerminalSummary, PosTerminalSummarySchema } from "./schema/pos-termi
         schema: PosTerminalSummarySchema,
       },
     ]),
+    UserModule,
   ],
   controllers: [PosTerminalController],
   providers: [PosTerminalService],

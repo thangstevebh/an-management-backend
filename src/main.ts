@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { ForbiddenException, ValidationPipe } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { TimeoutInterceptor } from "./_core/interceptors/timeout.interceptor";
 import { GLOBAL_MESSAGES } from "./_core/constants/common.constants";
@@ -25,7 +25,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       exceptionFactory: (errors) => {
         const messages = errors.map((error) => Object.values(error.constraints || {})).flat();
-        return new ForbiddenException(messages.join(", "));
+        return new BadRequestException(messages.join(", "));
       },
     }),
   );
@@ -63,7 +63,7 @@ async function bootstrap() {
     },
     credentials: true,
     allowedHeaders:
-      "Origin, X-CSRF-TOKEN, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, channel, request-id, Authorization, X-LANG",
+      "Origin, X-CSRF-TOKEN, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, channel, request-id, Authorization, X-LANG, x-agent, X-AGENT",
     methods: "GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH",
   });
 

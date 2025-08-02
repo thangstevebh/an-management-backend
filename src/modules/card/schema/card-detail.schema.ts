@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
-import { CARD_COLLECTION } from "./card.schema";
+import { Card } from "./card.schema";
 
 export type CardDetailDocument = HydratedDocument<CardDetail> & SoftDeleteDocument;
 export const CARD_DETAIL_COLLECTION = "card-details";
@@ -13,7 +13,7 @@ export class CardDetail {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: CARD_COLLECTION,
+    ref: Card.name,
   })
   cardId: MongooseSchema.Types.ObjectId;
 

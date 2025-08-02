@@ -1,17 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform, TransformFnParams, Type } from "class-transformer";
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsNumberString,
-  IsOptional,
-  IsString,
-  Max,
-  MaxLength,
-  Min,
-  MinLength,
-} from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, MinLength } from "class-validator";
 
 export class AddCardDetailDto {
   @ApiProperty({
@@ -64,7 +53,7 @@ export class AddCardDetailDto {
   @IsNotEmpty()
   @Min(0)
   @Type(() => Number)
-  negativeAmount: number;
+  negativeRemainingAmount: number;
 
   @ApiProperty({
     example: 0.96,

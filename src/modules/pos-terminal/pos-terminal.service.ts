@@ -30,6 +30,66 @@ export class PosTerminalService {
     return posTerminal ? posTerminal.toObject() : null;
   }
 
+  async getPosTerminalById(payload: {
+    posTerminalId: string;
+    agentId?: string;
+  }): Promise<PosTerminal | null> {
+    const { posTerminalId, agentId } = payload;
+
+    const query: Record<string, any> = { isDeleted: false, _id: new Types.ObjectId(posTerminalId) };
+
+    if (agentId) {
+      query.agentId = new Types.ObjectId(agentId);
+    }
+    const posTerminal = await this.posTerminalModel.findOne(query).exec();
+
+    return posTerminal ? posTerminal.toObject() : null;
+  }
+
+  async updatePosTerminal(payload: {
+    posTerminalId: string;
+    agentId?: string;
+    name?: string;
+    status?: PosTerminalStatus;
+    feePerDay?: number;
+    feeBack?: number;
+    feePerTerminal?: number;
+    posType?: string;
+    feePercentNormal?: number;
+    feePercentMB?: number;
+    note?: string;
+  }): Promise<PosTerminal | null> {
+    const { posTerminalId, agentId, name, status, feePerDay, feeBack, feePerTerminal, posType } =
+      payload;
+
+    const query: Record<string, any> = { isDeleted: false, _id: new Types.ObjectId(posTerminalId) };
+
+    const updateData: Record<string, any> = {};
+    if (name) updateData.name = name;
+    if (status) updateData.status = status;
+    if (feePerDay) updateData.feePerDay = feePerDay;
+    if (feeBack) updateData.feeBack = feeBack;
+    if (feePerTerminal) updateData.feePerTerminal = feePerTerminal;
+    if (posType) updateData.posType = posType;
+    if (name) updateData.name = name;
+    if (agentId) updateData.agentId = new Types.ObjectId(agentId);
+    if (payload.feePercentNormal) {
+      updateData.feePercentNormal = payload.feePercentNormal;
+    }
+    if (payload.feePercentMB) {
+      updateData.feePercentMB = payload.feePercentMB;
+    }
+    if (payload.note) {
+      updateData.note = payload.note;
+    }
+
+    const updatedPosTerminal = await this.posTerminalModel
+      .findOneAndUpdate(query, updateData, { new: true })
+      .exec();
+
+    return updatedPosTerminal ? updatedPosTerminal.toObject() : null;
+  }
+
   async createPosTerminal(
     payload: AddPosTerminalDto & {
       createdBy?: string | null;
@@ -54,9 +114,21 @@ export class PosTerminalService {
 
   async getListPosTerminals(
     payload: ListPOSFilterDto,
-    agentId: string,
+    agentId?: string | null,
   ): Promise<{ posTerminals: PosTerminal[]; pagemeta: Record<string, any> }> {
-    const query: Record<string, any> = { isDeleted: false, agentId: new Types.ObjectId(agentId) };
+    const query: Record<string, any> = { isDeleted: false };
+
+    if (agentId) {
+      query.agentId = new Types.ObjectId(agentId);
+    }
+
+    if (payload.agentId) {
+      query.agentId = new Types.ObjectId(payload.agentId);
+    }
+
+    if (payload._id) {
+      query._id = new Types.ObjectId(payload._id);
+    }
 
     if (payload.status) {
       query.status = payload.status;

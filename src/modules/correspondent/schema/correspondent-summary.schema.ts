@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { SoftDeleteDocument, softDeletePlugin } from "@src/_core/plugins/softDeleteMongoose.plugin";
-import { USER_COLLECTION } from "@src/modules/user/schema/user.schema";
+import { User } from "@src/modules/user/schema/user.schema";
 
 export type CorrespondentSumaryDocument = HydratedDocument<CorrespondentSumary> &
   SoftDeleteDocument;
@@ -64,7 +64,7 @@ export class CorrespondentSumary {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
-    ref: USER_COLLECTION,
+    ref: User.name,
   })
   createdBy: MongooseSchema.Types.ObjectId;
 }
