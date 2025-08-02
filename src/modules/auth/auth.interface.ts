@@ -4,6 +4,7 @@ import { AgentRole } from "../agent/agent.constant";
 export interface IUserJWT {
   _id: string | ObjectId;
   username: string;
+  phoneNumber: string;
   firstName?: string;
   lastName?: string;
   role: string;

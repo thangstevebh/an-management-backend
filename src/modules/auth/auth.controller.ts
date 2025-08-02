@@ -68,6 +68,7 @@ export class AuthController {
     const jwtPayload: IUserJWT = {
       _id: newUser._id,
       username: newUser.username,
+      phoneNumber: newUser?.phoneNumber,
       role: newUser.role,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
@@ -110,6 +111,7 @@ export class AuthController {
     const jwtPayload: IUserJWT = {
       _id: user._id,
       username: user.username,
+      phoneNumber: user.phoneNumber,
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,

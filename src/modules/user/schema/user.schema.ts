@@ -29,8 +29,7 @@ export class User {
 
   @Prop({
     type: String,
-    required: false,
-    default: null,
+    required: true,
     trim: true,
     /*
      * validate phone number
@@ -42,7 +41,7 @@ export class User {
       message: "Phone number must be 10 or 11 digits",
     },
   })
-  phoneNumber?: string;
+  phoneNumber: string;
 
   @Prop({
     type: String,
