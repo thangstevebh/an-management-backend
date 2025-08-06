@@ -21,3 +21,8 @@ export enum WithdrawCommandStatus {
   REJECTED = "rejected",
   CANCELLED = "cancelled",
 }
+
+export enum CommandType {
+  WITHDRAW = "withdraw",
+  INCOMMING = "incomming",
+}

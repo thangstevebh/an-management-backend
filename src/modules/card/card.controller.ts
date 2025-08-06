@@ -27,6 +27,8 @@ import { IUserJWT } from "../auth/auth.interface";
 import { UpdateCardDetailDto } from "./dto/update-card-detail.dto";
 import { AgentRoles } from "@src/_core/decorators/agent-role.decorator";
 import { AgentRole } from "../agent/agent.constant";
+import { ListBillFilterDto } from "./dto/list-bills.dto";
+import { DashboardReportsDto } from "./dto/dash-board-reports.dto";
 
 @Controller("card")
 export class CardController {
@@ -180,12 +182,17 @@ export class CardController {
     @Body() payload: UpdateCardDetailDto,
   ): Promise<ICommonResponse> {
     const card = await this.cardService.getCardById({
-      cardId,
+      cardId: cardId.toString(),
       agentId: agent._id.toString(),
     });
 
     if (!card) {
       throw new BadRequestException("Card not found or does not belong to this agent");
+    }
+
+    if (user.role !== UserRole.ADMIN) {
+      payload.amount = undefined;
+      payload.withdrawedAmount = undefined;
     }
 
     const updated = await this.cardService.updateCardDetail(cardId, cardDetailId, payload);
@@ -196,6 +203,81 @@ export class CardController {
       message: "Card details updated successfully",
       data: {
         card: updated,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "List Bills",
+    description:
+      "This endpoint retrieves a list of bills for a specific agent based on the provided filters.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @Get("/get-bills")
+  async listBills(
+    @GetUser() user: IUserJWT,
+    @GetAgent() agent: Agent,
+    @Query() payload: ListBillFilterDto,
+  ): Promise<ICommonResponse> {
+    const queryPayload = payload;
+    const bills = await this.cardService.getListBills(queryPayload);
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "List of bills retrieved successfully",
+      data: {
+        ...bills,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "Get Dashboard Reports",
+    description:
+      "This endpoint retrieves dashboard reports for a specific agent, including total cards, total bills, and total collaborators.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @IsAgentRequired()
+  @Get("/get-dashboard-reports")
+  async getDashboardReports(
+    @GetUser() user: IUserJWT,
+    @GetAgent() agent: Agent,
+    @Query() payload: DashboardReportsDto,
+  ): Promise<ICommonResponse> {
+    /*
+     * get total count of bills in current month, current day
+     * get total amount of bills in current month, current day
+     * get total amount of fee, feePerDay, feeBack, feeDifference in current month, current day
+     * */
+    const totalBills = await this.cardService.getTotalBills({
+      agentId: agent._id.toString(),
+      startDate: payload.startDate ? payload.startDate : new Date(),
+      endDate: payload.endDate ? payload.endDate : new Date(),
+      cardId: payload.cardId ? payload.cardId.trim() : undefined,
+    });
+
+    /*
+     * get total amount negative remaining amount of cards in current month, current day
+     * */
+    const totalCardDetail = await this.cardService.getTotalDetailAmount({
+      agentId: agent._id.toString(),
+      startDate: payload.startDate ? payload.startDate : new Date(),
+      endDate: payload.endDate ? payload.endDate : new Date(),
+      cardId: payload.cardId ? payload.cardId.trim() : undefined,
+    });
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "Dashboard reports retrieved successfully",
+      data: {
+        totalBills: totalBills,
+        totalCardDetail: totalCardDetail,
       },
     });
   }

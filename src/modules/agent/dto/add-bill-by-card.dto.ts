@@ -68,6 +68,16 @@ export class AddBillByCardDto {
   posFee: number;
 
   @ApiProperty({
+    example: 1.04,
+    required: true,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Type(() => Number)
+  posFeePerDay: number;
+
+  @ApiProperty({
     example: 0.08,
     required: true,
   })

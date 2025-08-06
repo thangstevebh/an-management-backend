@@ -79,7 +79,7 @@ export class CardDetail {
     required: false,
     default: Date.now,
   })
-  fromDate?: Date;
+  fromDate: Date;
 
   @Prop({
     type: Date,

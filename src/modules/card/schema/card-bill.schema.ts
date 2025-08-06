@@ -83,6 +83,15 @@ export class CardBill {
     type: String,
     required: true,
     trim: true,
+    uppercase: true,
+    minlength: 1,
+  })
+  code: string;
+
+  @Prop({
+    type: String,
+    required: true,
+    trim: true,
     lowercase: true,
     maxlength: 100,
     minlength: 1,
@@ -130,6 +139,23 @@ export class CardBill {
     default: 0,
   })
   posFeeAmount: number;
+
+  @Prop({
+    type: Number,
+    required: true,
+    min: 0,
+    max: 100,
+    default: 0,
+  })
+  posFeePerDay: number;
+
+  @Prop({
+    type: MongooseSchema.Types.Decimal128,
+    required: true,
+    min: 0,
+    default: 0,
+  })
+  posFeePerDayAmount: number;
 
   @Prop({
     type: Number,

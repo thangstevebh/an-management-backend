@@ -22,9 +22,10 @@ import { ReturnStatus } from "@src/_core/constants/common.constants";
 import { PosTerminalService } from "../pos-terminal/pos-terminal.service";
 import { CardService } from "../card/card.service";
 import { ConfirmIncommingCommandDto } from "./dto/confirm-incomming-command.dto";
-import { InCommingCommandStatus, WithdrawCommandStatus } from "../card/card.constant";
+import { CommandType, InCommingCommandStatus, WithdrawCommandStatus } from "../card/card.constant";
 import { ConfirmWithdrawCommandDto } from "./dto/confirm-withdraw-command.dto";
 import { ListPOSFilterDto } from "../agent/dto/list-pos.dto";
+import { ListCommandsFilterDto } from "./dto/list-commands-filter.dto";
 
 @Controller("admin")
 export class AdminController {
@@ -225,6 +226,38 @@ export class AdminController {
       message: "List of POS terminals retrieved successfully",
       data: {
         ...posTerminals,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "List Commands by Admin",
+    description: "This endpoint retrieves a list of commands for an admin.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN)
+  @Get("/list-commands-by-admin")
+  async listCommands(
+    @Req() req: Request,
+    @Query() payload: ListCommandsFilterDto,
+  ): Promise<ICommonResponse> {
+    let commands: { [key: string]: any } = {};
+
+    if (payload.commandType === CommandType.INCOMMING) {
+      commands = await this.cardService.listIncommingCommandsByAdmin(payload);
+    }
+
+    if (payload.commandType === CommandType.WITHDRAW) {
+      commands = await this.cardService.listWithdrawCommandsByAdmin(payload);
+    }
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "List of commands retrieved successfully",
+      data: {
+        ...commands,
       },
     });
   }

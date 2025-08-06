@@ -54,3 +54,35 @@ export function paginatingByCount(totalDocs: number, page: number, limit: number
     hasPrevPage,
   };
 }
+function getRandomUppercaseLetter() {
+  const minCharCode = "A".charCodeAt(0); // 65
+  const maxCharCode = "Z".charCodeAt(0); // 90
+
+  const randomCharCode = Math.floor(Math.random() * (maxCharCode - minCharCode + 1)) + minCharCode;
+
+  return String.fromCharCode(randomCharCode);
+}
+
+export function getRandomString(length: number) {
+  if (length < 0 || !Number.isInteger(length)) {
+    return "";
+  }
+
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += getRandomUppercaseLetter();
+  }
+  return result;
+}
+export function getRandomNumberString(length: number) {
+  if (length <= 0 || !Number.isInteger(length)) {
+    return "";
+  }
+
+  const maxNumber = Math.pow(10, length) - 1;
+  const randomNumber = Math.floor(Math.random() * (maxNumber + 1));
+  let randomString = randomNumber.toString();
+  randomString = randomString.padStart(length, "0");
+
+  return randomString;
+}

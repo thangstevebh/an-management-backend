@@ -39,6 +39,8 @@ import { AddWithdrawAmountRequestDto } from "./dto/add-withdraw-amount-request.d
 import { AddBillByCardDto } from "./dto/add-bill-by-card.dto";
 import { UpdateNegativeCurrentCardDetailDto } from "./dto/update-negative-current-card-detail.dto";
 import { AddCardDetailDto } from "../card/dto/add-card-detail.dto";
+import { ListCommandsFilterDto } from "../admin/dto/list-commands-filter.dto";
+import { CommandType } from "../card/card.constant";
 
 @Controller("agent")
 export class AgentController {
@@ -426,7 +428,17 @@ export class AgentController {
     @Param("cardId") cardId: string,
     @Body() payload: AddBillByCardDto,
   ): Promise<ICommonResponse> {
-    const { amount, lot, billNumber, customerFee, posFee, backFee, note, posTerminalId } = payload;
+    const {
+      amount,
+      lot,
+      billNumber,
+      customerFee,
+      posFee,
+      posFeePerDay,
+      backFee,
+      note,
+      posTerminalId,
+    } = payload;
 
     const currentCard = await this.cardService.getCardById({
       cardId,
@@ -459,6 +471,7 @@ export class AgentController {
       billNumber,
       customerFee,
       posFee,
+      posFeePerDay,
       backFee,
       note,
       posTerminalId: posTerminal._id.toString(),
@@ -570,6 +583,44 @@ export class AgentController {
       message: "Negative current card detail updated successfully",
       data: {
         updatedCardDetail,
+      },
+    });
+  }
+
+  @ApiOperation({
+    summary: "List Commands",
+    description: "This endpoint retrieves a list of commands.",
+  })
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.USER)
+  @IsAgentRequired()
+  @Get("/list-commands")
+  async listCommands(
+    @GetUser() user: IUserJWT,
+    @GetAgent() agent: Agent,
+    @Query() payload: ListCommandsFilterDto,
+  ): Promise<ICommonResponse> {
+    let commands: { [key: string]: any } = {};
+
+    if (user.role !== UserRole.ADMIN) {
+      payload.agentId = agent._id.toString();
+    }
+
+    if (payload.commandType === CommandType.INCOMMING) {
+      commands = await this.cardService.listIncommingCommandsByAdmin(payload);
+    }
+
+    if (payload.commandType === CommandType.WITHDRAW) {
+      commands = await this.cardService.listWithdrawCommandsByAdmin(payload);
+    }
+
+    return CommonResponse({
+      code: HttpStatus.OK,
+      status: ReturnStatus.SUCCESS,
+      message: "List of commands retrieved successfully",
+      data: {
+        ...commands,
       },
     });
   }
