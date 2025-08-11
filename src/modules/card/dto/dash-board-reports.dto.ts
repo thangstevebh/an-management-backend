@@ -44,4 +44,18 @@ export class DashboardReportsDto {
     return value ? value.trim() : undefined;
   })
   cardId?: string;
+
+  @ApiProperty({
+    example: "1234567890abcdef123456",
+    required: false,
+  })
+  @IsOptional()
+  @IsMongoId()
+  @Transform(({ value }: TransformFnParams): string | undefined => {
+    if (typeof value === "string" && value.trim() === "") {
+      return undefined;
+    }
+    return value ? value.trim() : undefined;
+  })
+  agentId?: string;
 }

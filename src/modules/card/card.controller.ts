@@ -255,7 +255,7 @@ export class CardController {
      * get total amount of fee, feePerDay, feeBack, feeDifference in current month, current day
      * */
     const totalBills = await this.cardService.getTotalBills({
-      agentId: agent._id.toString(),
+      agentId: payload.agentId ? payload.agentId : agent?._id.toString(),
       startDate: payload.startDate ? payload.startDate : new Date(),
       endDate: payload.endDate ? payload.endDate : new Date(),
       cardId: payload.cardId ? payload.cardId.trim() : undefined,
@@ -265,7 +265,7 @@ export class CardController {
      * get total amount negative remaining amount of cards in current month, current day
      * */
     const totalCardDetail = await this.cardService.getTotalDetailAmount({
-      agentId: agent._id.toString(),
+      agentId: payload.agentId ? payload.agentId : agent?._id.toString(),
       startDate: payload.startDate ? payload.startDate : new Date(),
       endDate: payload.endDate ? payload.endDate : new Date(),
       cardId: payload.cardId ? payload.cardId.trim() : undefined,

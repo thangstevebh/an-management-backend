@@ -55,7 +55,7 @@ export class UserService {
     const { _id, username, phoneNumber } = payload;
     const query: Record<string, any> = { isDeleted: false };
     if (_id) {
-      query._id = _id;
+      query._id = new Types.ObjectId(_id);
     }
     if (username) {
       query.username = username;
